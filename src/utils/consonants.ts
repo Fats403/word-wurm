@@ -1,0 +1,25 @@
+const consonants: string[] = [
+  "B",
+  "C",
+  "D",
+  "F",
+  "G",
+  "H",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "P",
+  "Qu",
+  "R",
+  "S",
+  "T",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+];
+
+export default consonants;
