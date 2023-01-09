@@ -2,7 +2,7 @@ import React from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
 import { GameContextType, LetterCellProps } from "../types";
-import lettersData from "../utils/letterScores";
+import lettersData from "../utils/lettersData";
 
 const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
   const { value, x, y, selected } = data;

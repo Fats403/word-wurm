@@ -6,9 +6,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "check-word": "^1.1.0",
     "next": "latest",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "scrabble": "^1.0.13",
+    "word-exists": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "18.11.3",

@@ -25,12 +25,10 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
 
     const letters: string[] = shuffle([...randomConsonants, ...randomVowels]);
 
-    console.log(letters);
-
     setGameGrid(
-      Array.from({ length: numCellsY }, (_, y) =>
-        Array.from({ length: numCellsX }, (_, x) => ({
-          value: letters[x * numCellsY + y],
+      Array.from({ length: numCellsX }, (_, x) =>
+        Array.from({ length: numCellsY }, (_, y) => ({
+          value: letters[y * numCellsY + x],
           selected: false,
           y,
           x,
@@ -39,9 +37,20 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
     );
   };
 
+  const getGridCell = (x: number, y: number): GameCellData => {
+    return gameGrid?.[x]?.[y];
+  };
+
+  const setGridCell = (x: number, y: number, cellData: GameCellData): void => {
+    setGameGrid((grid) => {
+      grid[x][y] = cellData;
+      return grid;
+    });
+  };
+
   useEffect(() => {
     generateLetterGrid();
   }, []);
 
-  return { gameGrid, setGameGrid };
+  return { gameGrid, setGameGrid, getGridCell, setGridCell };
 };

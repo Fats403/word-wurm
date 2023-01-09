@@ -7,14 +7,16 @@ import LetterCell from "./LetterCell";
 const GameGrid = (): JSX.Element => {
   const {
     gameGrid,
+    wordScore,
+    totalScore,
+    isValidWord,
+    submitWord,
     selectedLetters,
     gameSettings: { numCellsX, numCellsY, cellSize },
   } = useContext(GameContext) as GameContextType;
 
   const gridWidth: number = numCellsX * cellSize;
   const gridHeight: number = numCellsY * cellSize + cellSize / 2 - numCellsY;
-
-  console.log(gameGrid);
 
   return (
     <div
@@ -36,13 +38,23 @@ const GameGrid = (): JSX.Element => {
           </div>
         );
       })}
-      <p className="absolute -top-8">
+      <p className="absolute -top-16 select-none">
         Selected Letters:{" "}
         {selectedLetters
           .map((l) => l.value)
           .join("")
           .toUpperCase()}
       </p>
+      <p className="absolute -top-10 select-none">Points: {wordScore}</p>
+      <p className="absolute -bottom-10 select-none">Score: {totalScore}</p>
+      <button
+        onClick={() => submitWord()}
+        disabled={!isValidWord}
+        type="button"
+        className="select-none absolute -top-16 right-0 text-blue-700 transition-all duration-200 hover:text-white border border-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+      >
+        Submit
+      </button>
     </div>
   );
 };

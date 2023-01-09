@@ -456,6 +456,11 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+check-word@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/check-word/-/check-word-1.1.0.tgz#4ad5c1141bad1974ce47fd1176f9d4369017c475"
+  integrity sha512-lkPjTvHn+3gPQ+sA2Z3QrV9fNqX2NXpvxQIxiG7pQaPQ8NhPR4dUmpHLRlCbqrP5Wo0oAzVVh7MKhwGECcvhyQ==
+
 chokidar@^3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.3.tgz#1cf37c8707b932bd1af1ae22c0432e2acd1903bd"
@@ -1706,6 +1711,11 @@ scheduler@^0.23.0:
   dependencies:
     loose-envify "^1.1.0"
 
+scrabble@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/scrabble/-/scrabble-1.0.13.tgz#07660577ff4c700ec9f4e513eacf47364e1973db"
+  integrity sha512-I0kox30SuwuLDdx4kzMi681H0E7O/WIFPfGbftv5mRC1DzKCrKAq0X6E+xmO/WNKDKh+5Ul82Bm4i69FoxX+jw==
+
 semver@^6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
@@ -1955,6 +1965,11 @@ which@^2.0.1:
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   dependencies:
     isexe "^2.0.0"
+
+word-exists@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/word-exists/-/word-exists-1.0.0.tgz#2d3e0903b085afe7bf4a3d044dabfffaf083fb52"
+  integrity sha512-uvBrbg1bjPzist7dMwRLuOn4TZojTOUgocFFbRft+RPGZuFpzuNO32PXHIKOPFKeocItfCPCkw/Nic09fKqOSA==
 
 word-wrap@^1.2.3:
   version "1.2.3"

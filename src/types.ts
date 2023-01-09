@@ -32,7 +32,11 @@ export type GameSettingsType = {
 
 export type GameContextType = {
   gameGrid: GameCellData[][];
+  wordScore: number | null;
+  totalScore: number;
+  isValidWord: boolean;
   selectedLetters: GameCellData[];
   gameSettings: GameSettingsType;
   selectLetter: (data: GameCellData) => void;
+  submitWord: () => void;
 };
