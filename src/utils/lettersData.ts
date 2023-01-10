@@ -1,110 +1,127 @@
 import { LetterDataList } from "../types";
+import {
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Qu,
+  R,
+  S,
+  T,
+  U,
+  V,
+  W,
+  X,
+  Y,
+  Z,
+} from "./letterData";
+import {
+  LETTER_RARITY_HIGH,
+  LETTER_RARITY_MID,
+  LETTER_RARITY_LOW,
+  maxLevel,
+  maxLetterDifficulty,
+  levelToLetterDifficulty,
+} from "./scoreData";
+import vowels from "./vowels";
 
-const lettersData: LetterDataList = {
-  A: {
-    value: 60,
-    tier: 1,
+export const lettersData: LetterDataList = {
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Qu,
+  R,
+  S,
+  T,
+  U,
+  V,
+  W,
+  X,
+  Y,
+  Z,
+};
+
+export const vowelData: LetterDataList = {
+  A,
+  E,
+  I,
+  O,
+  U,
+};
+
+export const consonantData = {
+  [LETTER_RARITY_LOW]: {
+    T,
+    R,
+    S,
+    N,
+    L,
+    G,
+    H,
+    D,
   },
-  B: {
-    value: 60,
-    tier: 2,
+  [LETTER_RARITY_MID]: {
+    B,
+    C,
+    F,
+    K,
+    M,
+    P,
+    V,
+    W,
+    Y,
   },
-  C: {
-    value: 60,
-    tier: 2,
-  },
-  D: {
-    value: 60,
-    tier: 1,
-  },
-  E: {
-    value: 60,
-    tier: 1,
-  },
-  F: {
-    value: 60,
-    tier: 2,
-  },
-  G: {
-    value: 60,
-    tier: 1,
-  },
-  H: {
-    value: 60,
-    tier: 1,
-  },
-  I: {
-    value: 60,
-    tier: 1,
-  },
-  J: {
-    value: 60,
-    tier: 3,
-  },
-  K: {
-    value: 60,
-    tier: 2,
-  },
-  L: {
-    value: 60,
-    tier: 1,
-  },
-  M: {
-    value: 60,
-    tier: 2,
-  },
-  N: {
-    value: 60,
-    tier: 1,
-  },
-  O: {
-    value: 60,
-    tier: 1,
-  },
-  P: {
-    value: 60,
-    tier: 2,
-  },
-  Qu: {
-    value: 60,
-    tier: 3,
-  },
-  R: {
-    value: 60,
-    tier: 1,
-  },
-  S: {
-    value: 60,
-    tier: 1,
-  },
-  T: {
-    value: 60,
-    tier: 1,
-  },
-  U: {
-    value: 60,
-    tier: 1,
-  },
-  V: {
-    value: 60,
-    tier: 2,
-  },
-  W: {
-    value: 60,
-    tier: 2,
-  },
-  X: {
-    value: 60,
-    tier: 3,
-  },
-  Y: {
-    value: 60,
-    tier: 2,
-  },
-  Z: {
-    value: 60,
-    tier: 3,
+  [LETTER_RARITY_HIGH]: {
+    J,
+    Qu,
+    X,
+    Z,
   },
 };
 
-export default lettersData;
+export const generateNewConsonant = (level: number): string => {
+  const letterChance: number = Math.random();
+  const diffultyProbabilties =
+    level > maxLevel ? maxLetterDifficulty : levelToLetterDifficulty[level];
+
+  let letterKeys: string[] = [];
+
+  if (letterChance <= diffultyProbabilties[LETTER_RARITY_HIGH]) {
+    letterKeys = Object.keys(consonantData[LETTER_RARITY_HIGH]);
+  } else if (letterChance <= diffultyProbabilties[LETTER_RARITY_MID]) {
+    letterKeys = Object.keys(consonantData[LETTER_RARITY_MID]);
+  } else {
+    letterKeys = Object.keys(consonantData[LETTER_RARITY_LOW]);
+  }
+
+  return letterKeys[Math.floor(Math.random() * letterKeys.length)];
+};
+
+export const generateNewVowel = (): string => {
+  return vowels[Math.floor(Math.random() * vowels.length)];
+};

@@ -33,6 +33,7 @@ export type GameSettingsType = {
 export type GameContextType = {
   gameGrid: GameCellData[][];
   wordScore: number | null;
+  level: number;
   totalScore: number;
   isValidWord: boolean;
   selectedLetters: GameCellData[];

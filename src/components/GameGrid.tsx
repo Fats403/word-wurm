@@ -6,6 +6,7 @@ import LetterCell from "./LetterCell";
 
 const GameGrid = (): JSX.Element => {
   const {
+    level,
     gameGrid,
     wordScore,
     totalScore,
@@ -46,7 +47,8 @@ const GameGrid = (): JSX.Element => {
           .toUpperCase()}
       </p>
       <p className="absolute -top-10 select-none">Points: {wordScore}</p>
-      <p className="absolute -bottom-10 select-none">Score: {totalScore}</p>
+      <p className="absolute -bottom-16 select-none">Score: {totalScore}</p>
+      <p className="absolute -bottom-10 select-none">Level: {level}</p>
       <button
         onClick={() => submitWord()}
         disabled={!isValidWord}

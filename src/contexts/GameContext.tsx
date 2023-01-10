@@ -7,9 +7,18 @@ import {
   GameProviderProps,
   GameSettingsType,
 } from "../types";
-import lettersData from "../utils/lettersData";
 import consonants from "../utils/consonants";
-import vowels from "../utils/vowels";
+import {
+  lengthMultipliers,
+  maxLetterMultiplierLength,
+  maxScoreMultiplier,
+  scoreToLevelMap,
+} from "../utils/scoreData";
+import {
+  generateNewConsonant,
+  generateNewVowel,
+  lettersData,
+} from "../utils/lettersData";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -112,6 +121,10 @@ const GameProvider = ({ children }: GameProviderProps) => {
     ]
   );
 
+  const level = useMemo((): number => {
+    return scoreToLevelMap.findIndex((score) => totalScore < score) + 1;
+  }, [totalScore]);
+
   const isValidWord = useMemo((): boolean => {
     if (selectedLettersString.length <= 2) return false;
     const sanitizedString = selectedLettersString.toLowerCase();
@@ -122,22 +135,10 @@ const GameProvider = ({ children }: GameProviderProps) => {
     if (!isValidWord) return null;
 
     let score = 0;
-    const maxMultiplier = 2.2;
-
-    const lengthMultipliers: any = {
-      3: 1.1,
-      4: 1.2,
-      5: 1.3,
-      6: 1.4,
-      7: 1.6,
-      8: 1.8,
-      9: 1.9,
-      10: 2.0,
-    };
 
     const lengthMultiplier: number =
-      selectedLettersString.length > 10
-        ? maxMultiplier
+      selectedLettersString.length > maxLetterMultiplierLength
+        ? maxScoreMultiplier
         : lengthMultipliers[selectedLettersString.length];
 
     selectedLetters.forEach((letter) => {
@@ -145,9 +146,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
       score += letterScoreData.value * letterScoreData.tier;
     });
 
-    score = Math.round(score * lengthMultiplier);
-
-    return score;
+    return Math.round(score * lengthMultiplier);
   }, [isValidWord, selectedLetters, selectedLettersString.length]);
 
   const generateNewLetters = useCallback(
@@ -176,19 +175,17 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
         // if the consonant ratio is less then the defined ratio
         if (cRatio < gameSettings.consonantRatio) {
-          // generate a consonant
-          letters.push(
-            consonants[Math.floor(Math.random() * consonants.length)]
-          );
+          const consonant = generateNewConsonant(level);
+          letters.push(consonant);
         } else {
-          // otherwise generate a vowel
-          letters.push(vowels[Math.floor(Math.random() * vowels.length)]);
+          const vowel = generateNewVowel();
+          letters.push(vowel);
         }
       }
 
       return letters;
     },
-    [gameGrid, gameSettings.consonantRatio, selectedLetters]
+    [level, gameGrid, gameSettings.consonantRatio, selectedLetters]
   );
 
   const submitWord = useCallback((): void => {
@@ -246,6 +243,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
   return (
     <GameContext.Provider
       value={{
+        level,
         submitWord,
         totalScore,
         wordScore,
