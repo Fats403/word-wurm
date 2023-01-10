@@ -151,7 +151,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     let score = 0;
 
     const lengthMultiplier: number =
-      selectedLettersString.length > maxLetterMultiplierLength
+      selectedLettersString.length >= maxLetterMultiplierLength
         ? maxScoreMultiplier
         : lengthMultipliers[selectedLettersString.length];
 
