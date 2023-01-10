@@ -18,7 +18,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     numCellsX: 7,
     numCellsY: 7,
     cellSize: 50,
-    consonantRatio: 0.67,
+    consonantRatio: 0.7,
   });
 
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
@@ -122,11 +122,30 @@ const GameProvider = ({ children }: GameProviderProps) => {
     if (!isValidWord) return null;
 
     let score = 0;
+    const maxMultiplier = 2.2;
+
+    const lengthMultipliers: any = {
+      3: 1.1,
+      4: 1.2,
+      5: 1.3,
+      6: 1.4,
+      7: 1.6,
+      8: 1.8,
+      9: 1.9,
+      10: 2.0,
+    };
+
+    const lengthMultiplier: number =
+      selectedLetters.length > 10
+        ? maxMultiplier
+        : lengthMultipliers[selectedLetters.length];
 
     selectedLetters.forEach((letter) => {
-      const value = lettersData[letter.value].value;
-      score += value;
+      const letterScoreData = lettersData[letter.value];
+      score += letterScoreData.value * letterScoreData.tier;
     });
+
+    score = Math.round(score * lengthMultiplier);
 
     return score;
   }, [isValidWord, selectedLetters]);
