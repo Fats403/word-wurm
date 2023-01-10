@@ -10,7 +10,6 @@ import {
 import lettersData from "../utils/lettersData";
 import consonants from "../utils/consonants";
 import vowels from "../utils/vowels";
-import shuffle from "../utils/shuffle";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -18,8 +17,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [gameSettings, setGameSettings] = useState<GameSettingsType>({
     numCellsX: 7,
     numCellsY: 7,
-    cellSize: 60,
-    consonantRatio: 0.72,
+    cellSize: 50,
+    consonantRatio: 0.67,
   });
 
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
@@ -132,10 +131,46 @@ const GameProvider = ({ children }: GameProviderProps) => {
     return score;
   }, [isValidWord, selectedLetters]);
 
-  const generateNewLetter = (): string => {
-    const allLetters = shuffle([...consonants, ...vowels]);
-    return allLetters[Math.floor(Math.random() * allLetters.length)];
-  };
+  const generateNewLetters = useCallback(
+    (numLetters: number): string[] => {
+      const allLetters: string[] = [];
+
+      gameGrid.forEach((col) => {
+        col.forEach((cell) => {
+          if (
+            !cell.selected &&
+            !selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)
+          ) {
+            allLetters.push(cell.value);
+          }
+        });
+      });
+
+      const letters: string[] = [];
+
+      for (let i = 0; i < numLetters; i++) {
+        const numConsonants: number = [...allLetters, ...letters].filter((l) =>
+          consonants.includes(l)
+        ).length;
+
+        const cRatio = numConsonants / (allLetters.length + letters.length);
+
+        // if the consonant ratio is less then the defined ratio
+        if (cRatio < gameSettings.consonantRatio) {
+          // generate a consonant
+          letters.push(
+            consonants[Math.floor(Math.random() * consonants.length)]
+          );
+        } else {
+          // otherwise generate a vowel
+          letters.push(vowels[Math.floor(Math.random() * vowels.length)]);
+        }
+      }
+
+      return letters;
+    },
+    [gameGrid, gameSettings.consonantRatio, selectedLetters]
+  );
 
   const submitWord = useCallback((): void => {
     const _score = wordScore ?? 0;
@@ -163,19 +198,20 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
         const newColLength = newCol.length;
         const numNewLetters = col.length - newColLength;
-        const newLetters = [];
+        const newLetters = generateNewLetters(numNewLetters);
+        const newLettersGameCells = [];
 
         for (i = 1; i <= numNewLetters; i++) {
           const newLetter: GameCellData = {
-            value: generateNewLetter(),
+            value: newLetters[i - 1],
             selected: false,
             y: numNewLetters - i,
             x: columnIndex,
           };
-          newLetters.push(newLetter);
+          newLettersGameCells.push(newLetter);
         }
 
-        const _col = [...newCol, ...newLetters].reverse();
+        const _col = [...newCol, ...newLettersGameCells].reverse();
 
         newGrid[columnIndex] = _col;
       });
@@ -186,7 +222,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     setTotalScore((score) => score + _score);
     setSelectedLetters([]);
-  }, [selectedLetters, setGameGrid, wordScore]);
+  }, [generateNewLetters, selectedLetters, setGameGrid, wordScore]);
 
   return (
     <GameContext.Provider
