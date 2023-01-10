@@ -11,6 +11,7 @@ import consonants from "../utils/consonants";
 import {
   lengthMultipliers,
   maxLetterMultiplierLength,
+  maxLevel,
   maxScoreMultiplier,
   scoreToLevelMap,
 } from "../utils/scoreData";
@@ -31,7 +32,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
   });
 
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
-  const [totalScore, setTotalScore] = useState<number>(0);
+  const [totalScore, setTotalScore] = useState<number>(121000);
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
@@ -136,7 +137,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
   );
 
   const level = useMemo((): number => {
-    return scoreToLevelMap.findIndex((score) => totalScore < score) + 1;
+    return (
+      scoreToLevelMap.findIndex((score) => totalScore < score) + 1 || maxLevel
+    );
   }, [totalScore]);
 
   const isValidWord = useMemo((): boolean => {
