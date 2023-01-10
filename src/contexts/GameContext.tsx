@@ -32,7 +32,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
   });
 
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
-  const [totalScore, setTotalScore] = useState<number>(121000);
+  const [totalScore, setTotalScore] = useState<number>(0);
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
