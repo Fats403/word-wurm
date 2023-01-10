@@ -1,5 +1,5 @@
 export const maxLevel = 10;
-export const maxScoreMultiplier = 2.4;
+export const maxScoreMultiplier = 3.5;
 export const maxLetterMultiplierLength = 10;
 
 export const LETTER_RARITY_LOW = 3;
@@ -14,11 +14,11 @@ export const lengthMultipliers: any = {
   3: 1.0,
   4: 1.2,
   5: 1.3,
-  6: 1.4,
-  7: 1.6,
-  8: 1.8,
-  9: 2.0,
-  10: 2.2,
+  6: 1.5,
+  7: 1.7,
+  8: 2.2,
+  9: 2.4,
+  10: 3.0,
 };
 
 export const maxLetterDifficulty: any = {

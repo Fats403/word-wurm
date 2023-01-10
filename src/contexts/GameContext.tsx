@@ -77,13 +77,27 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const selectLetter = useCallback(
     (data: GameCellData): void => {
       if (!data.selected) {
-        if (
-          !lastSelectedNeighbours ||
-          lastSelectedNeighbours.some(
-            (cell) => cell.x === data.x && cell.y === data.y
-          )
-        ) {
-          const cellData: GameCellData = { ...data, selected: !data.selected };
+        const selectionIsNeighbour = lastSelectedNeighbours?.some(
+          (cell) => cell.x === data.x && cell.y === data.y
+        );
+
+        const cellData: GameCellData = { ...data, selected: !data.selected };
+
+        if (selectedLetters.length === 1 && !selectionIsNeighbour) {
+          const selectedCell = getGridCell(data.x, data.y);
+          const prevSelectedCell = selectedLetters[0];
+
+          setSelectedLetters([selectedCell]);
+
+          setGridCell(data.x, data.y, cellData);
+          setGridCell(prevSelectedCell.x, prevSelectedCell.y, {
+            ...prevSelectedCell,
+            selected: false,
+          });
+          return;
+        }
+
+        if (!lastSelectedNeighbours || selectionIsNeighbour) {
           setSelectedLetters((letters) => [...letters, cellData]);
           setGridCell(data.x, data.y, cellData);
         }
