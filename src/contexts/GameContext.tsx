@@ -136,9 +136,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
     };
 
     const lengthMultiplier: number =
-      selectedLetters.length > 10
+      selectedLettersString.length > 10
         ? maxMultiplier
-        : lengthMultipliers[selectedLetters.length];
+        : lengthMultipliers[selectedLettersString.length];
 
     selectedLetters.forEach((letter) => {
       const letterScoreData = lettersData[letter.value];
@@ -148,7 +148,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     score = Math.round(score * lengthMultiplier);
 
     return score;
-  }, [isValidWord, selectedLetters]);
+  }, [isValidWord, selectedLetters, selectedLettersString.length]);
 
   const generateNewLetters = useCallback(
     (numLetters: number): string[] => {
