@@ -12,6 +12,7 @@ const GameGrid = (): JSX.Element => {
     totalScore,
     isValidWord,
     longestWord,
+    resetGame,
     submitWord,
     shuffleGameBoard,
     isGameOver,
@@ -64,17 +65,30 @@ const GameGrid = (): JSX.Element => {
         <div
           style={{
             zIndex: 20,
-            padding: 4,
+            padding: 32,
+            borderRadius: 4,
             backgroundColor: "#000",
             position: "absolute",
-            bottom: 160,
-            right: 85,
             fontSize: 32,
             color: "#FFF",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            top: "50%",
+            left: "49.25%",
+            transform: "translate(-50%,-50%)",
           }}
           className="select-none"
         >
-          <p>GAME OVER</p>
+          <span className="whitespace-nowrap">GAME OVER</span>
+          <button
+            onClick={() => resetGame()}
+            type="button"
+            className="select-none flex mt-4 justify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+          >
+            Play Again
+          </button>
         </div>
       )}
       <button

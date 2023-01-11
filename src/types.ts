@@ -48,5 +48,6 @@ export type GameContextType = {
   isGameOver: boolean;
   selectLetter: (data: GameCellData) => void;
   shuffleGameBoard: () => void;
+  resetGame: () => void;
   submitWord: () => void;
 };

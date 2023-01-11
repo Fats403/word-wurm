@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useGameGrid } from "../hooks/useGameGrid";
 import wordExists from "word-exists";
 import {
@@ -44,8 +44,12 @@ const GameProvider = ({ children }: GameProviderProps) => {
     [selectedLetters]
   );
 
-  const { gameGrid, setGameGrid, getGridCell, setGridCell } =
+  const { gameGrid, setGameGrid, getGridCell, setGridCell, createNewGameGrid } =
     useGameGrid(gameSettings);
+
+  useEffect(() => {
+    setGameGrid(createNewGameGrid());
+  }, [createNewGameGrid, setGameGrid]);
 
   const lastSelectedNeighbours = useMemo((): GameCellData[] | null => {
     if (selectedLetters.length === 0) return null;
@@ -82,6 +86,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const selectLetter = useCallback(
     (data: GameCellData): void => {
+      if (isGameOver) return;
+
       if (!data.selected) {
         const selectionIsNeighbour = lastSelectedNeighbours?.some(
           (cell) => cell.x === data.x && cell.y === data.y
@@ -134,6 +140,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     },
     [
       getGridCell,
+      isGameOver,
       lastSelectedNeighbours,
       selectedLetters,
       setGameGrid,
@@ -295,6 +302,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     setSelectedLetters([]);
   }, [
+    gameGrid,
+    gameSettings.numCellsY,
     generateNewLetters,
     getGridCell,
     level,
@@ -320,8 +329,6 @@ const GameProvider = ({ children }: GameProviderProps) => {
   ]);
 
   const shuffleGameBoard = useCallback((): void => {
-    // TODO: Make sure you cant clear fire tiles that are selected
-
     const numFireTiles = 2 + Math.floor(Math.random() * Math.floor(level / 3));
 
     const shouldBeFireCell: boolean[] = shuffle(
@@ -373,10 +380,20 @@ const GameProvider = ({ children }: GameProviderProps) => {
     updateGameGridState();
   }, [gameSettings, level, setGameGrid, updateGameGridState]);
 
+  const resetGame = useCallback((): void => {
+    setSelectedLetters([]);
+    setLongestWord("");
+    setTotalScore(0);
+
+    setGameGrid(createNewGameGrid());
+    setIsGameOver(false);
+  }, [createNewGameGrid, setGameGrid]);
+
   return (
     <GameContext.Provider
       value={{
         level,
+        resetGame,
         submitWord,
         isGameOver,
         totalScore,
