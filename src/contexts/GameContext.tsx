@@ -401,7 +401,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     setDoc(doc(firestore, "highscores", auth.currentUser.uid), {
       totalScore,
-      displayName: auth.currentUser.displayName,
+      displayName: auth.currentUser.displayName
+        ? auth.currentUser.displayName.split(" ")[0]
+        : "",
       longestWord,
       id: auth.currentUser.uid,
     })
