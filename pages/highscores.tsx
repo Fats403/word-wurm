@@ -32,7 +32,7 @@ const Highscores: NextPage = () => {
   }, []);
 
   return (
-    <Page title="Login">
+    <Page title="Highscores">
       <div className="flex flex-col border-solid border-2 border-black rounded-lg p-6">
         <h1 className="font-bold leading-tight text-5xl mt-0 mb-2 text-black mb-4">
           HIGHSCORES
