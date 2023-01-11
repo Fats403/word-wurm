@@ -50,6 +50,13 @@ const Login: NextPage = () => {
         >
           Play as guest
         </button>
+        <button
+          onClick={() => router.push("/highscores")}
+          type="button"
+          className="mt-2 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2 mb-2"
+        >
+          View Highscores
+        </button>
       </div>
     </Page>
   );
