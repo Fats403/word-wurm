@@ -22,9 +22,16 @@ const Login: NextPage = () => {
         </h1>
 
         <button
+          onClick={() => router.push("/game")}
+          type="button"
+          className="text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2"
+        >
+          {auth?.currentUser ? "Play" : "Play as guest"}
+        </button>
+        <button
           onClick={() => signInWithGoogle()}
           type="button"
-          className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2"
+          className="mt-4 text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center dark:focus:ring-[#4285F4]/55 mr-2"
         >
           <svg
             className="w-4 h-4 mr-2 -ml-1"
@@ -44,18 +51,18 @@ const Login: NextPage = () => {
           Sign in with Google
         </button>
         <button
-          onClick={() => router.push("/game")}
-          type="button"
-          className="mt-2 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2 mb-2"
-        >
-          {auth?.currentUser ? "Play" : "Play as guest"}
-        </button>
-        <button
           onClick={() => router.push("/highscores")}
           type="button"
-          className="mt-2 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2 mb-2"
+          className="mt-4 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2"
         >
           View Highscores
+        </button>
+        <button
+          onClick={() => router.push("/learn")}
+          type="button"
+          className="mt-4 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2"
+        >
+          Learn How To Play
         </button>
       </div>
     </Page>

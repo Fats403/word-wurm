@@ -49,13 +49,13 @@ const Highscores: NextPage = () => {
               return (
                 <div
                   key={index}
-                  className="flex flex-col justify-center items-center mb-2"
+                  className="flex flex-col justify-center items-center mb-2 text-sm"
                 >
                   <b>
                     {index + 1}. {data.displayName}
                   </b>
-                  <div>Score: {data.totalScore}</div>
                   <div>Longest Word: {data.longestWord}</div>
+                  <div>Score: {data.totalScore}</div>
                 </div>
               );
             })}
