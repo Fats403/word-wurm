@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useGameGrid } from "../hooks/useGameGrid";
 import wordExists from "word-exists";
 import {
+  CellTypes,
   GameCellData,
   GameContextType,
   GameProviderProps,
@@ -9,6 +10,7 @@ import {
 } from "../types";
 import consonants from "../utils/consonants";
 import {
+  fireTileChance,
   lengthMultipliers,
   maxLetterMultiplierLength,
   maxLevel,
@@ -20,6 +22,7 @@ import {
   generateNewVowel,
   lettersData,
 } from "../utils/lettersData";
+import shuffle from "../utils/shuffle";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -33,6 +36,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
   const [totalScore, setTotalScore] = useState<number>(0);
+  const [longestWord, setLongestWord] = useState<string>("");
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
@@ -205,11 +210,23 @@ const GameProvider = ({ children }: GameProviderProps) => {
     [level, gameGrid, gameSettings.consonantRatio, selectedLetters]
   );
 
-  const submitWord = useCallback((): void => {
-    const _score = wordScore ?? 0;
+  const updateGameGridState = useCallback(() => {
+    if (
+      gameGrid.some((col) =>
+        col.some(
+          (cell) =>
+            cell.y === gameSettings.numCellsY - 1 &&
+            cell.type === CellTypes.FIRE &&
+            !selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)
+        )
+      )
+    ) {
+      setIsGameOver(true);
+    }
 
     setGameGrid((grid) => {
       const newGrid: GameCellData[][] = [];
+
       grid.forEach((col, columnIndex) => {
         const newCol = [];
         let i: number;
@@ -217,10 +234,22 @@ const GameProvider = ({ children }: GameProviderProps) => {
         let yIndex: number = col.length - 1;
         for (i = col.length - 1; i >= 0; i--) {
           const cell: GameCellData = Object.assign({}, col[i]);
+          const cellAbove = getGridCell(cell.x, cell.y - 1);
+
           if (!selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)) {
-            cell.y = yIndex;
-            newCol.push(cell);
-            --yIndex;
+            if (
+              !cellAbove ||
+              (cell.type !== CellTypes.FIRE &&
+                cellAbove.type !== CellTypes.FIRE) ||
+              (cell.type === CellTypes.FIRE &&
+                cellAbove.type === CellTypes.FIRE) ||
+              (cell.type === CellTypes.FIRE &&
+                cellAbove.type !== CellTypes.FIRE)
+            ) {
+              cell.y = yIndex;
+              newCol.push(cell);
+              --yIndex;
+            }
           }
         }
 
@@ -235,9 +264,20 @@ const GameProvider = ({ children }: GameProviderProps) => {
         const newLettersGameCells = [];
 
         for (i = 1; i <= numNewLetters; i++) {
+          let newLetterType: number = CellTypes.NONE;
+          if (
+            selectedLettersString.length === 3 ||
+            selectedLettersString.length === 4
+          ) {
+            const chance = Math.random();
+            if (chance < fireTileChance[level]) {
+              newLetterType = CellTypes.FIRE;
+            }
+          }
           const newLetter: GameCellData = {
             value: newLetters[i - 1],
             selected: false,
+            type: newLetterType,
             y: numNewLetters - i,
             x: columnIndex,
           };
@@ -253,22 +293,101 @@ const GameProvider = ({ children }: GameProviderProps) => {
       return grid;
     });
 
-    setTotalScore((score) => score + _score);
     setSelectedLetters([]);
-  }, [generateNewLetters, selectedLetters, setGameGrid, wordScore]);
+  }, [
+    generateNewLetters,
+    getGridCell,
+    level,
+    selectedLetters,
+    selectedLettersString.length,
+    setGameGrid,
+  ]);
+
+  const submitWord = useCallback((): void => {
+    const _score = wordScore ?? 0;
+    setTotalScore((score) => score + _score);
+
+    if (selectedLettersString.length > longestWord.length) {
+      setLongestWord(selectedLettersString.toUpperCase());
+    }
+
+    updateGameGridState();
+  }, [
+    wordScore,
+    selectedLettersString,
+    longestWord.length,
+    updateGameGridState,
+  ]);
+
+  const shuffleGameBoard = useCallback((): void => {
+    // TODO: Make sure you cant clear fire tiles that are selected
+
+    const numFireTiles = 2 + Math.floor(Math.random() * Math.floor(level / 3));
+
+    const shouldBeFireCell: boolean[] = shuffle(
+      Array.from({ length: gameSettings.numCellsX }, (_, i) =>
+        i < numFireTiles ? true : false
+      )
+    );
+
+    const { numCellsX, numCellsY, consonantRatio } = gameSettings;
+    const numCells: number = numCellsX * numCellsY;
+
+    const numConsonants: number = Math.floor(numCells * consonantRatio);
+    const numVowels: number = numCells - numConsonants;
+
+    const randomConsonants: string[] = Array.from(
+      { length: numConsonants },
+      () => generateNewConsonant(level)
+    );
+
+    const randomVowels: string[] = Array.from({ length: numVowels }, () =>
+      generateNewVowel()
+    );
+
+    const letters: string[] = shuffle([...randomConsonants, ...randomVowels]);
+
+    setGameGrid((grid) => {
+      const newGrid: GameCellData[][] = [];
+
+      grid.forEach((col, xIndex) => {
+        const newCol: GameCellData[] = [];
+
+        col.forEach((cell, yIndex) => {
+          const gameCell: GameCellData = Object.assign({}, cell);
+          if (gameCell.type !== CellTypes.FIRE) {
+            if (yIndex === 0 && shouldBeFireCell[xIndex]) {
+              gameCell.type = CellTypes.FIRE;
+            }
+            gameCell.value = letters[yIndex * numCellsY + xIndex];
+          }
+          newCol.push(gameCell);
+        });
+        newGrid.push(newCol);
+      });
+
+      grid = newGrid;
+      return grid;
+    });
+
+    updateGameGridState();
+  }, [gameSettings, level, setGameGrid, updateGameGridState]);
 
   return (
     <GameContext.Provider
       value={{
         level,
         submitWord,
+        isGameOver,
         totalScore,
+        longestWord,
         wordScore,
         isValidWord,
         selectedLetters,
         gameGrid,
         gameSettings,
         selectLetter,
+        shuffleGameBoard,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GameCellData, GameSettingsType } from "../types";
+import { CellTypes, GameCellData, GameSettingsType } from "../types";
 import { generateNewConsonant, generateNewVowel } from "../utils/lettersData";
 import shuffle from "../utils/shuffle";
 
@@ -7,7 +7,7 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
   const { consonantRatio, numCellsX, numCellsY } = gameSettings;
   const [gameGrid, setGameGrid] = useState<GameCellData[][]>([]);
 
-  const generateLetterGrid = (level = 1): void => {
+  const generateNewGameGrid = (level = 1): void => {
     const numCells: number = numCellsX * numCellsY;
     const numConsonants: number = Math.floor(numCells * consonantRatio);
     const numVowels: number = numCells - numConsonants;
@@ -28,6 +28,7 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
         Array.from({ length: numCellsY }, (_, y) => ({
           value: letters[y * numCellsY + x],
           selected: false,
+          type: CellTypes.NONE,
           y,
           x,
         }))
@@ -47,7 +48,7 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
   };
 
   useEffect(() => {
-    generateLetterGrid();
+    generateNewGameGrid();
   }, []);
 
   return { gameGrid, setGameGrid, getGridCell, setGridCell };

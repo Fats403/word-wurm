@@ -1,6 +1,12 @@
+export enum CellTypes {
+  NONE = 1,
+  FIRE = 2,
+}
+
 export interface GameCellData {
   value: string;
   selected: boolean;
+  type: number;
   x: number;
   y: number;
 }
@@ -33,11 +39,14 @@ export type GameSettingsType = {
 export type GameContextType = {
   gameGrid: GameCellData[][];
   wordScore: number | null;
+  longestWord: string;
   level: number;
   totalScore: number;
   isValidWord: boolean;
   selectedLetters: GameCellData[];
   gameSettings: GameSettingsType;
+  isGameOver: boolean;
   selectLetter: (data: GameCellData) => void;
+  shuffleGameBoard: () => void;
   submitWord: () => void;
 };

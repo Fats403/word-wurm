@@ -21,13 +21,26 @@ export const lengthMultipliers: any = {
   10: 3.0,
 };
 
+export const fireTileChance: any = {
+  1: 0,
+  2: 0.05,
+  3: 0.1,
+  4: 0.13,
+  5: 0.15,
+  6: 0.2,
+  7: 0.24,
+  8: 0.3,
+  9: 0.34,
+  10: 0.4,
+};
+
 export const maxLetterDifficulty: any = {
   [LETTER_RARITY_LOW]: 0.4,
   [LETTER_RARITY_MID]: 0.3,
   [LETTER_RARITY_HIGH]: 0.3,
 };
 
-export const levelToLetterDifficulty: any = {
+export const levelToLetterRarityChance: any = {
   1: {
     [LETTER_RARITY_LOW]: 0.7,
     [LETTER_RARITY_MID]: 0.25,

@@ -11,7 +11,10 @@ const GameGrid = (): JSX.Element => {
     wordScore,
     totalScore,
     isValidWord,
+    longestWord,
     submitWord,
+    shuffleGameBoard,
+    isGameOver,
     selectedLetters,
     gameSettings: { numCellsX, numCellsY, cellSize },
   } = useContext(GameContext) as GameContextType;
@@ -47,15 +50,48 @@ const GameGrid = (): JSX.Element => {
           .toUpperCase()}
       </p>
       <p className="absolute -top-10 select-none">Points: {wordScore}</p>
-      <p className="absolute -bottom-16 select-none">Score: {totalScore}</p>
-      <p className="absolute -bottom-10 select-none">Level: {level}</p>
+
+      <p style={{ position: "absolute", bottom: -35 }} className="select-none">
+        Level: {level}
+      </p>
+      <p style={{ position: "absolute", bottom: -60 }} className="select-none">
+        Score: {totalScore}
+      </p>
+      <p style={{ position: "absolute", bottom: -85 }} className="select-none">
+        Longest Word: {longestWord}
+      </p>
+      {isGameOver && (
+        <div
+          style={{
+            zIndex: 20,
+            padding: 4,
+            backgroundColor: "#000",
+            position: "absolute",
+            bottom: 160,
+            right: 85,
+            fontSize: 32,
+            color: "#FFF",
+          }}
+          className="select-none"
+        >
+          <p>GAME OVER</p>
+        </div>
+      )}
       <button
         onClick={() => submitWord()}
-        disabled={!isValidWord}
+        disabled={!isValidWord || isGameOver}
         type="button"
         className="select-none absolute -top-16 right-0 text-blue-700 transition-all duration-200 hover:text-white border border-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
       >
         Submit
+      </button>
+      <button
+        disabled={Boolean(selectedLetters.length) || isGameOver}
+        onClick={() => shuffleGameBoard()}
+        type="button"
+        className="select-none absolute -bottom-20 right-0 text-blue-700 transition-all duration-200 hover:text-white border border-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+      >
+        Shuffle
       </button>
     </div>
   );

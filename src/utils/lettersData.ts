@@ -31,7 +31,7 @@ import {
   LETTER_RARITY_HIGH,
   LETTER_RARITY_MID,
   LETTER_RARITY_LOW,
-  levelToLetterDifficulty,
+  levelToLetterRarityChance,
 } from "./scoreData";
 import vowels from "./vowels";
 
@@ -104,13 +104,13 @@ export const consonantData = {
 
 export const generateNewConsonant = (level: number): string => {
   const letterChance: number = Math.random();
-  const diffultyProbabilties = levelToLetterDifficulty[level];
+  const letterRarityProbabilties = levelToLetterRarityChance[level];
 
   let letterKeys: string[] = [];
 
-  if (letterChance <= diffultyProbabilties[LETTER_RARITY_HIGH]) {
+  if (letterChance <= letterRarityProbabilties[LETTER_RARITY_HIGH]) {
     letterKeys = Object.keys(consonantData[LETTER_RARITY_HIGH]);
-  } else if (letterChance <= diffultyProbabilties[LETTER_RARITY_MID]) {
+  } else if (letterChance <= letterRarityProbabilties[LETTER_RARITY_MID]) {
     letterKeys = Object.keys(consonantData[LETTER_RARITY_MID]);
   } else {
     letterKeys = Object.keys(consonantData[LETTER_RARITY_LOW]);
