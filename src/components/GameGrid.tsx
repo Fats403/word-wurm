@@ -1,9 +1,10 @@
 import React from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
-import { auth } from "../services/firebase";
+import { auth, googleAuthProvider } from "../services/firebase";
 import { GameCellData, GameContextType } from "../types";
 import LetterCell from "./LetterCell";
+import { signInWithPopup } from "firebase/auth";
 
 const GameGrid = (): JSX.Element => {
   const {
@@ -22,6 +23,12 @@ const GameGrid = (): JSX.Element => {
     selectedLetters,
     gameSettings: { numCellsX, numCellsY, cellSize },
   } = useContext(GameContext) as GameContextType;
+
+  const signInWithGoogleAndSubmitHighscore = () => {
+    signInWithPopup(auth, googleAuthProvider)
+      .then(() => submitHighscore())
+      .catch((e: Error) => console.log("Google login failed", e));
+  };
 
   const gridWidth: number = numCellsX * cellSize;
   const gridHeight: number = numCellsY * cellSize + cellSize / 2 - numCellsY;
@@ -69,7 +76,7 @@ const GameGrid = (): JSX.Element => {
           style={{
             zIndex: 20,
             padding: 32,
-            borderRadius: 4,
+            borderRadius: 16,
             backgroundColor: "#000",
             position: "absolute",
             fontSize: 32,
@@ -84,11 +91,11 @@ const GameGrid = (): JSX.Element => {
           }}
           className="select-none"
         >
-          <span className="whitespace-nowrap">GAME OVER</span>
+          <span className="whitespace-nowrap text-5xl mb-10">GAME OVER</span>
           <button
             onClick={() => resetGame()}
             type="button"
-            className="select-none flex mt-4 justify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+            className="select-none flexjustify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
           >
             Play Again
           </button>
@@ -100,6 +107,14 @@ const GameGrid = (): JSX.Element => {
           >
             Submit Highscore
           </button>
+          {!auth.currentUser && (
+            <p className="text-sm text-center mt-2 cursor-pointer">
+              <a onClick={() => signInWithGoogleAndSubmitHighscore()}>
+                <u>Sign in</u>
+              </a>{" "}
+              to submit your highscore.
+            </p>
+          )}
         </div>
       )}
       <button
@@ -114,9 +129,10 @@ const GameGrid = (): JSX.Element => {
         disabled={Boolean(selectedLetters.length) || isGameOver}
         onClick={() => shuffleGameBoard()}
         type="button"
-        className="select-none absolute -bottom-20 right-0 text-blue-700 transition-all duration-200 hover:text-white border border-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+        style={{ bottom: -90 }}
+        className="select-none absolute right-0 text-blue-700 transition-all duration-200 hover:text-white border border-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
       >
-        Shuffle
+        SCRAMBLE
       </button>
     </div>
   );

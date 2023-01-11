@@ -27,8 +27,9 @@ const Learn: NextPage = () => {
             they reach the bottom its game over.
           </li>
           <li className="mb-6 text-center">
-            Scrambling the board will randomize all the tiles not including
-            burning tiles. It will also give you more burning tiles.
+            Scrambling the board will randomize all the tiles to a new letter
+            not including burning tiles. It will also give you more burning
+            tiles.
           </li>
           <p className="font-bold">Good Luck!</p>
         </div>
