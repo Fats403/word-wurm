@@ -1,26 +1,35 @@
 import { NextPage } from "next";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Page from "../src/components/Page";
 import { useRouter } from "next/router";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { firestore } from "../src/services/firebase";
+import Loader from "../src/components/Loader";
 
-export async function getStaticProps() {
-  const snapshot = await getDocs(collection(firestore, "highscores"));
-  const highscores = snapshot.docs.map((doc) => doc.data());
-  const sortedHighscores = highscores.sort((a, b) => {
-    return b.totalScore - a.totalScore;
-  });
-
-  return {
-    props: {
-      highscores: sortedHighscores,
-    },
-  };
-}
-
-const Highscores: NextPage = ({ highscores }: any) => {
+const Highscores: NextPage = () => {
   const router = useRouter();
+  const [highscores, setHighscores] = useState<any[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(firestore, "highscores"),
+      (querySnapshot: any) => {
+        const highscoreData: any[] = [];
+
+        querySnapshot.forEach((doc: any) => {
+          highscoreData.push(doc.data());
+        });
+
+        const sortedHighscores = highscoreData.sort((a, b) => {
+          return b.totalScore - a.totalScore;
+        });
+
+        setHighscores(sortedHighscores);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Page title="Login">
@@ -28,23 +37,31 @@ const Highscores: NextPage = ({ highscores }: any) => {
         <h1 className="font-bold leading-tight text-5xl mt-0 mb-2 text-black mb-4">
           HIGHSCORES
         </h1>
-        <div className="flex flex-col justify-center items-center">
-          {highscores?.map((data: any, index: number) => {
-            if (index > 5) return;
-            return (
-              <div
-                key={index}
-                className="flex flex-col justify-center items-center mb-2"
-              >
-                <b>
-                  {index + 1}. {data.displayName}
-                </b>
-                <div key={index}>Score: {data.totalScore}</div>
-                <div key={index}>Longest Word: {data.longestWord}</div>
-              </div>
-            );
-          })}
-        </div>
+
+        {!highscores.length ? (
+          <div className="flex flex-col justify-center items-center">
+            <Loader />
+          </div>
+        ) : (
+          <div className="flex flex-col justify-center items-center">
+            {highscores?.map((data: any, index: number) => {
+              if (index > 5) return;
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col justify-center items-center mb-2"
+                >
+                  <b>
+                    {index + 1}. {data.displayName}
+                  </b>
+                  <div>Score: {data.totalScore}</div>
+                  <div>Longest Word: {data.longestWord}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <button
           onClick={() => router.push("/")}
           type="button"
