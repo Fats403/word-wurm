@@ -1,16 +1,58 @@
+import { signInWithPopup } from "firebase/auth";
+import { NextPage } from "next";
 import React from "react";
-import type { NextPage } from "next";
-import GameGrid from "../src/components/GameGrid";
-import GameProvider from "../src/contexts/GameContext";
+import Page from "../src/components/Page";
+import { auth, googleAuthProvider } from "../src/services/firebase";
+import { useRouter } from "next/router";
 
-const Game: NextPage = () => {
+const Login: NextPage = () => {
+  const router = useRouter();
+
+  const signInWithGoogle = () => {
+    signInWithPopup(auth, googleAuthProvider)
+      .then(() => router.push("/game"))
+      .catch((e: Error) => console.log("Google login failed", e));
+  };
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <GameProvider>
-        <GameGrid />
-      </GameProvider>
-    </div>
+    <Page title="Login">
+      <div className="flex flex-col">
+        <h1 className="font-bold leading-tight text-5xl mt-0 mb-2 text-black mb-16">
+          WORD WORM
+        </h1>
+
+        <button
+          onClick={() => signInWithGoogle()}
+          type="button"
+          className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center flex items-center justify-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2"
+        >
+          <svg
+            className="w-4 h-4 mr-2 -ml-1"
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fab"
+            data-icon="google"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 488 512"
+          >
+            <path
+              fill="currentColor"
+              d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+            ></path>
+          </svg>
+          Sign in with Google
+        </button>
+        <button
+          onClick={() => router.push("/game")}
+          type="button"
+          className="mt-2 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2 mb-2"
+        >
+          Play as guest
+        </button>
+      </div>
+    </Page>
   );
 };
 
-export default Game;
+export default Login;

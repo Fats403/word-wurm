@@ -1,6 +1,7 @@
 import React from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
+import { auth } from "../services/firebase";
 import { GameCellData, GameContextType } from "../types";
 import LetterCell from "./LetterCell";
 
@@ -12,8 +13,10 @@ const GameGrid = (): JSX.Element => {
     totalScore,
     isValidWord,
     longestWord,
+    sentHighscore,
     resetGame,
     submitWord,
+    submitHighscore,
     shuffleGameBoard,
     isGameOver,
     selectedLetters,
@@ -88,6 +91,14 @@ const GameGrid = (): JSX.Element => {
             className="select-none flex mt-4 justify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
           >
             Play Again
+          </button>
+          <button
+            disabled={!auth?.currentUser || sentHighscore || totalScore === 0}
+            onClick={() => submitHighscore()}
+            type="button"
+            className="select-none flex mt-4 justify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+          >
+            Submit Highscore
           </button>
         </div>
       )}

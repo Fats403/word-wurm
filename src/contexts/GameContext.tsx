@@ -23,6 +23,8 @@ import {
   lettersData,
 } from "../utils/lettersData";
 import shuffle from "../utils/shuffle";
+import { auth, firestore } from "../services/firebase";
+import { doc, Firestore, setDoc } from "firebase/firestore";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -37,7 +39,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
   const [totalScore, setTotalScore] = useState<number>(0);
   const [longestWord, setLongestWord] = useState<string>("");
+
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [sentHighscore, setSentHighscore] = useState<boolean>(false);
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
@@ -387,7 +391,23 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     setGameGrid(createNewGameGrid());
     setIsGameOver(false);
+    setSentHighscore(false);
   }, [createNewGameGrid, setGameGrid]);
+
+  const submitHighscore = async () => {
+    if (!auth?.currentUser) return;
+
+    setSentHighscore(true);
+
+    setDoc(doc(firestore, "highscores", auth.currentUser.uid), {
+      totalScore,
+      displayName: auth.currentUser.displayName,
+      longestWord,
+      id: auth.currentUser.uid,
+    })
+      .then(() => console.log("Highscore successfully submitted."))
+      .catch((e) => console.log(e));
+  };
 
   return (
     <GameContext.Provider
@@ -395,6 +415,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
         level,
         resetGame,
         submitWord,
+        submitHighscore,
+        sentHighscore,
         isGameOver,
         totalScore,
         longestWord,

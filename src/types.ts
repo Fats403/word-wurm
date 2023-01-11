@@ -3,6 +3,11 @@ export enum CellTypes {
   FIRE = 2,
 }
 
+export enum Page {
+  LOGIN = 1,
+  GAME = 2,
+}
+
 export interface GameCellData {
   value: string;
   selected: boolean;
@@ -29,6 +34,11 @@ export type GameProviderProps = {
   children?: JSX.Element | JSX.Element[];
 };
 
+export type PageProps = {
+  children?: JSX.Element | JSX.Element[];
+  title: string;
+};
+
 export type GameSettingsType = {
   numCellsX: number;
   numCellsY: number;
@@ -46,8 +56,10 @@ export type GameContextType = {
   selectedLetters: GameCellData[];
   gameSettings: GameSettingsType;
   isGameOver: boolean;
+  sentHighscore: boolean;
   selectLetter: (data: GameCellData) => void;
   shuffleGameBoard: () => void;
   resetGame: () => void;
   submitWord: () => void;
+  submitHighscore: () => void;
 };
