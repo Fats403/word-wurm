@@ -50,6 +50,7 @@ const Login: NextPage = () => {
           </svg>
           Sign in with Google
         </button>
+
         <button
           onClick={() => router.push("/highscores")}
           type="button"

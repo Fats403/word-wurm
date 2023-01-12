@@ -20,11 +20,8 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
       style={{
         width: `${size}px`,
         height: `${size}px`,
-        left: x * size + (x === 0 ? 0 : -1 * x),
-        top:
-          y * size +
-          (x % 2 == 1 ? size / 2 : 0) + // vertical offset on odd rows
-          (y === 0 ? 0 : -1 * y), // line offset
+        left: x * size + (x === 0 ? 0 : x * -1),
+        top: y * size + (x % 2 == 1 ? size / 2 : 0) + (y === 0 ? 0 : y * -1), // vertical offset on odd rows
       }}
       className={
         selected

@@ -33,39 +33,48 @@ const Highscores: NextPage = () => {
 
   return (
     <Page title="Highscores">
-      <div className="flex flex-col border-solid border-2 border-black rounded-lg p-6">
-        <h1 className="font-bold leading-tight text-5xl mt-0 mb-2 text-black mb-4">
-          HIGHSCORES
-        </h1>
+      <div className="w-80 p-4 bg-white shadow-lg border border-grey-300 rounded-xl dark:bg-gray-700">
+        <p className="font-bold text-black text-xl dark:text-white mb-2">
+          Highscores
+        </p>
+        <ul>
+          {!highscores.length ? (
+            <div className="flex flex-col justify-center items-center">
+              <Loader />
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {highscores?.map((data: any, index: number) => {
+                if (index >= 5) return;
+                return (
+                  <li key={index} className="flex items-center my-2 space-x-2 ">
+                    <div className="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden border border-black rounded-full">
+                      <span className="font-medium text-gray-600 dark:text-gray-300">
+                        #{index + 1}
+                      </span>
+                    </div>
 
-        {!highscores.length ? (
-          <div className="flex flex-col justify-center items-center">
-            <Loader />
-          </div>
-        ) : (
-          <div className="flex flex-col justify-center items-center">
-            {highscores?.map((data: any, index: number) => {
-              if (index > 5) return;
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col justify-center items-center mb-2 text-sm"
-                >
-                  <b>
-                    {index + 1}. {data.displayName}
-                  </b>
-                  <div>Longest Word: {data.longestWord}</div>
-                  <div>Score: {data.totalScore}</div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
+                    <div className="flex flex-col">
+                      <span className="ml-2 text-sm font-semibold text-gray-900 dark:text-white">
+                        {data.displayName}
+                      </span>
+                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-300">
+                        Score: {data.totalScore}
+                      </span>
+                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-300">
+                        Longest Word: {data.longestWord}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </div>
+          )}
+        </ul>
         <button
           onClick={() => router.push("/")}
           type="button"
-          className="mt-4 text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2 mb-2"
+          className="mt-4 w-full text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55 mr-2 mb-2"
         >
           Back
         </button>

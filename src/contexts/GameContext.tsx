@@ -7,6 +7,8 @@ import {
   GameContextType,
   GameProviderProps,
   GameSettingsType,
+  ToastProps,
+  ToastTypes,
 } from "../types";
 import consonants from "../utils/consonants";
 import {
@@ -24,7 +26,8 @@ import {
 } from "../utils/lettersData";
 import shuffle from "../utils/shuffle";
 import { auth, firestore } from "../services/firebase";
-import { doc, Firestore, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
+import randomNumber from "../utils/randomNumber";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -42,6 +45,12 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [sentHighscore, setSentHighscore] = useState<boolean>(false);
+  const [toast, setToast] = useState<ToastProps>({
+    message: "",
+    type: ToastTypes.SUCCESS,
+    duration: 2000,
+    visible: false,
+  });
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
@@ -51,9 +60,19 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const { gameGrid, setGameGrid, getGridCell, setGridCell, createNewGameGrid } =
     useGameGrid(gameSettings);
 
+  const showToast = useCallback((props: ToastProps): void => {
+    setToast({ ...props });
+  }, []);
+
   useEffect(() => {
     setGameGrid(createNewGameGrid());
-  }, [createNewGameGrid, setGameGrid]);
+    /*showToast({
+      message: "Test!",
+      type: ToastTypes.SUCCESS,
+      duration: 5000,
+      visible: true,
+    });*/
+  }, [createNewGameGrid, setGameGrid /*showToast*/]);
 
   const lastSelectedNeighbours = useMemo((): GameCellData[] | null => {
     if (selectedLetters.length === 0) return null;
@@ -280,8 +299,12 @@ const GameProvider = ({ children }: GameProviderProps) => {
             selectedLettersString.length === 3 ||
             selectedLettersString.length === 4
           ) {
-            const chance = Math.random();
-            if (chance < fireTileChance[level]) {
+            const baseChance = fireTileChance[level];
+            const bonusChance =
+              selectedLettersString.length === 4 ? randomNumber(0.01, 0.05) : 0;
+
+            const random = Math.random();
+            if (random < baseChance - bonusChance) {
               newLetterType = CellTypes.FIRE;
             }
           }
@@ -427,6 +450,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
         selectedLetters,
         gameGrid,
         gameSettings,
+        toast,
+        showToast,
         selectLetter,
         shuffleGameBoard,
       }}
