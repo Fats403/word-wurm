@@ -14,6 +14,11 @@ export enum ToastTypes {
   ERROR = 3,
 }
 
+export enum HighscoreSortingTypes {
+  SCORE = 1,
+  LONGEST_WORD = 2,
+}
+
 export interface GameCellData {
   value: string;
   selected: boolean;
@@ -61,6 +66,7 @@ export type GameSettingsType = {
 
 export type GameContextType = {
   gameGrid: GameCellData[][];
+  currentHighscore: any;
   wordScore: number | null;
   longestWord: string;
   level: number;

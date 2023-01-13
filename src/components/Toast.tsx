@@ -27,6 +27,7 @@ const Toast = (): JSX.Element => {
 
   return (
     <motion.div
+      initial={{ opacity: 0 }}
       animate={toast.visible ? "open" : "closed"}
       onAnimationComplete={() => {
         refTimer.current = window.setTimeout(() => {

@@ -26,11 +26,11 @@ export const fireTileChance: any = {
   2: 0.1,
   3: 0.12,
   4: 0.15,
-  5: 0.18,
-  6: 0.22,
-  7: 0.26,
-  8: 0.3,
-  9: 0.35,
+  5: 0.17,
+  6: 0.2,
+  7: 0.23,
+  8: 0.25,
+  9: 0.32,
   10: 0.4,
 };
 
@@ -82,8 +82,8 @@ export const levelToLetterRarityChance: any = {
     [LETTER_RARITY_HIGH]: 0.18,
   },
   9: {
-    [LETTER_RARITY_LOW]: 0.47,
-    [LETTER_RARITY_MID]: 0.33,
+    [LETTER_RARITY_LOW]: 0.48,
+    [LETTER_RARITY_MID]: 0.32,
     [LETTER_RARITY_HIGH]: 0.2,
   },
   10: {

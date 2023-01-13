@@ -1,10 +1,8 @@
 import React from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
-import { auth, googleAuthProvider } from "../services/firebase";
 import { GameCellData, GameContextType } from "../types";
 import LetterCell from "./LetterCell";
-import { signInWithPopup } from "firebase/auth";
 import GameOver from "./GameOver";
 
 const GameGrid = (): JSX.Element => {

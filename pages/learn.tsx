@@ -8,10 +8,8 @@ const Learn: NextPage = () => {
 
   return (
     <Page title="Learn To Play">
-      <div className="w-80 p-4 bg-white shadow-lg border border-grey-300 rounded-xl dark:bg-gray-700">
-        <p className="font-bold text-black text-xl dark:text-white mb-6">
-          Learn To Play
-        </p>
+      <div className="w-80 p-4 bg-white shadow-lg border border-grey-300 rounded-xl">
+        <p className="font-bold text-black text-xl mb-6">Learn To Play</p>
         <ul>
           <li className="mb-4 text-center text-sm">
             Click on the letters to link them into words. Click on submit to add
@@ -35,7 +33,7 @@ const Learn: NextPage = () => {
         <button
           onClick={() => router.push("/")}
           type="button"
-          className="mt-6 w-full text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center dark:focus:ring-[#000000]/55"
+          className="mt-6 w-full text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center"
         >
           Back
         </button>

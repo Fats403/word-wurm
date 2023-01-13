@@ -7,9 +7,13 @@ import { useRouter } from "next/router";
 
 const GameOver = (): JSX.Element => {
   const router = useRouter();
-  const { totalScore, sentHighscore, resetGame, submitHighscore } = useContext(
-    GameContext
-  ) as GameContextType;
+  const {
+    totalScore,
+    sentHighscore,
+    currentHighscore,
+    resetGame,
+    submitHighscore,
+  } = useContext(GameContext) as GameContextType;
 
   const signInWithGoogleAndSubmitHighscore = () => {
     signInWithPopup(auth, googleAuthProvider)
@@ -21,23 +25,65 @@ const GameOver = (): JSX.Element => {
     <div
       style={{
         zIndex: 20,
-        padding: 32,
-        borderRadius: 16,
-        backgroundColor: "#000",
-        position: "absolute",
-        fontSize: 32,
-        color: "#FFF",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
         top: "50%",
         left: "49.25%",
         transform: "translate(-50%,-50%)",
       }}
-      className="select-none"
+      className="relative w-80 p-4 shadow-black bg-gray-700 shadow-lg rounded-xl justify-center items-center flex flex-col"
     >
-      <span className="whitespace-nowrap text-5xl mb-10">GAME OVER</span>
+      <p className="font-bold text-white text-center text-5xl mb-6 select-none">
+        Game Over
+      </p>
+      <button
+        onClick={() => resetGame()}
+        type="button"
+        className="select-none flexjustify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+      >
+        Play Again
+      </button>
+      <button
+        onClick={() => router.push("/")}
+        type="button"
+        className="select-none flex mt-4 justify-center text-white transition-all duration-200 hover:text-black border border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center  disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+      >
+        Main Menu
+      </button>
+      <button
+        disabled={
+          !auth?.currentUser ||
+          sentHighscore ||
+          totalScore === 0 ||
+          (currentHighscore && totalScore <= currentHighscore?.totalScore)
+        }
+        onClick={() => submitHighscore()}
+        type="button"
+        className="select-none flex mt-4 mb-2 justify-center text-white transition-all duration-200 enabled:hover:text-black border border-white enabled:hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:text-gray-400 disabled:border-gray-300"
+      >
+        Submit Highscore
+      </button>
+
+      {!auth.currentUser && !sentHighscore && (
+        <p className="text-sm text-center text-white my-2 select-none">
+          <a
+            className="cursor-pointer"
+            onClick={() => signInWithGoogleAndSubmitHighscore()}
+          >
+            <u>Login</u>
+          </a>{" "}
+          to submit your highscore.
+        </p>
+      )}
+
+      {currentHighscore && (
+        <p className="text-sm text-center text-white my-2 select-none">
+          Your current highscore is {currentHighscore.totalScore}.
+        </p>
+      )}
+    </div>
+  );
+};
+
+/* <span className="whitespace-nowrap text-5xl mb-10">GAME OVER</span>
       <button
         onClick={() => resetGame()}
         type="button"
@@ -72,9 +118,6 @@ const GameOver = (): JSX.Element => {
         <p className="text-sm text-center mt-2 cursor-pointer">
           Highscore submitted!
         </p>
-      )}
-    </div>
-  );
-};
+      )}*/
 
 export default GameOver;

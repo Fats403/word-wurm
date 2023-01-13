@@ -9,7 +9,7 @@ const Game: NextPage = () => {
   return (
     <Page title="Word Worm">
       <GameProvider>
-        <div className="p-4 bg-white shadow-lg border border-gray-300 rounded-xl dark:bg-gray-700">
+        <div className="p-4 bg-white shadow-lg border border-gray-300 rounded-xl">
           <GameGrid />
           <Toast />
         </div>

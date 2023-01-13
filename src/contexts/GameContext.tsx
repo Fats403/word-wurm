@@ -26,7 +26,7 @@ import {
 } from "../utils/lettersData";
 import shuffle from "../utils/shuffle";
 import { auth, firestore } from "../services/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import randomNumber from "../utils/randomNumber";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
@@ -39,6 +39,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     consonantRatio: 0.7,
   });
 
+  const [currentHighscore, setCurrentHighscore] = useState<any>(null);
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
   const [totalScore, setTotalScore] = useState<number>(0);
   const [longestWord, setLongestWord] = useState<string>("");
@@ -48,7 +49,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [toast, setToast] = useState<ToastProps>({
     message: "",
     type: ToastTypes.SUCCESS,
-    duration: 2000,
+    duration: 3000,
     visible: false,
   });
 
@@ -64,15 +65,23 @@ const GameProvider = ({ children }: GameProviderProps) => {
     setToast({ ...props });
   }, []);
 
+  const retrieveCurrentHighScore = useCallback(async (): Promise<void> => {
+    if (!auth?.currentUser) return;
+    const docRef = doc(firestore, "highscores", auth.currentUser.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log(docSnap.data());
+      setCurrentHighscore(docSnap.data());
+    }
+
+    setCurrentHighscore(null);
+  }, [setCurrentHighscore]);
+
   useEffect(() => {
+    // retrieveCurrentHighScore();
     setGameGrid(createNewGameGrid());
-    /*showToast({
-      message: "Test!",
-      type: ToastTypes.SUCCESS,
-      duration: 5000,
-      visible: true,
-    });*/
-  }, [createNewGameGrid, setGameGrid /*showToast*/]);
+  }, [createNewGameGrid, retrieveCurrentHighScore, setGameGrid]);
 
   const lastSelectedNeighbours = useMemo((): GameCellData[] | null => {
     if (selectedLetters.length === 0) return null;
@@ -430,8 +439,22 @@ const GameProvider = ({ children }: GameProviderProps) => {
       longestWord,
       id: auth.currentUser.uid,
     })
-      .then(() => console.log("Highscore successfully submitted."))
-      .catch((e) => console.log(e));
+      .then(() =>
+        showToast({
+          ...toast,
+          message: "Highscore submitted!",
+          visible: true,
+          type: ToastTypes.SUCCESS,
+        })
+      )
+      .catch(() =>
+        showToast({
+          ...toast,
+          message: "Something went wrong, try again later.",
+          visible: true,
+          type: ToastTypes.ERROR,
+        })
+      );
   };
 
   return (
@@ -441,6 +464,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
         resetGame,
         submitWord,
         submitHighscore,
+        currentHighscore,
         sentHighscore,
         isGameOver,
         totalScore,
