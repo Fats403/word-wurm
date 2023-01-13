@@ -12,12 +12,14 @@ import {
 } from "../types";
 import consonants from "../utils/consonants";
 import {
+  baseEmeraldValueMultiplier,
   fireTileChance,
   lengthMultipliers,
   maxLetterMultiplierLength,
   maxLevel,
   maxScoreMultiplier,
   scoreToLevelMap,
+  spawnEmeraldTileChance,
 } from "../utils/scoreData";
 import {
   generateNewConsonant,
@@ -207,7 +209,16 @@ const GameProvider = ({ children }: GameProviderProps) => {
       score += letterScoreData.value * letterScoreData.tier;
     });
 
-    return Math.round(score * lengthMultiplier);
+    const numEmeraldTiles = selectedLetters.reduce(
+      (acc, cur) => (cur.type === CellTypes.EMERALD ? ++acc : acc),
+      0
+    );
+
+    return Math.round(
+      score *
+        lengthMultiplier *
+        (1 + numEmeraldTiles * baseEmeraldValueMultiplier)
+    );
   }, [isValidWord, selectedLetters, selectedLettersString.length]);
 
   const generateNewLetters = useCallback(
@@ -263,6 +274,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
       setIsGameOver(true);
     }
 
+    let setBonusTile = false;
+
     setGameGrid((grid) => {
       const newGrid: GameCellData[][] = [];
 
@@ -302,6 +315,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
         const newLetters = generateNewLetters(numNewLetters);
         const newLettersGameCells = [];
 
+        const randomNewLetterIndex = Math.round(randomNumber(1, numNewLetters));
+
         for (i = 1; i <= numNewLetters; i++) {
           let newLetterType: number = CellTypes.NONE;
           if (
@@ -309,12 +324,25 @@ const GameProvider = ({ children }: GameProviderProps) => {
             selectedLettersString.length === 4
           ) {
             const baseChance = fireTileChance[level];
+
+            // NOTE: deduct 5 - 10 percent chance off the base chance for four letter words
             const bonusChance =
-              selectedLettersString.length === 4 ? randomNumber(0.01, 0.05) : 0;
+              selectedLettersString.length === 4 ? randomNumber(0.05, 0.1) : 0;
 
             const random = Math.random();
             if (random < baseChance - bonusChance) {
               newLetterType = CellTypes.FIRE;
+            }
+          } else if (i === randomNewLetterIndex && !setBonusTile) {
+            if (selectedLettersString.length >= 7) {
+              newLetterType = CellTypes.EMERALD;
+              setBonusTile = true;
+            } else if (selectedLettersString.length >= 5) {
+              const random = Math.random();
+              if (random < spawnEmeraldTileChance) {
+                newLetterType = CellTypes.EMERALD;
+              }
+              setBonusTile = true;
             }
           }
           const newLetter: GameCellData = {
@@ -398,7 +426,10 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
         col.forEach((cell, yIndex) => {
           const gameCell: GameCellData = Object.assign({}, cell);
-          if (gameCell.type !== CellTypes.FIRE) {
+          if (
+            gameCell.type !== CellTypes.FIRE &&
+            gameCell.type !== CellTypes.EMERALD
+          ) {
             if (yIndex === 0 && shouldBeFireCell[xIndex]) {
               gameCell.type = CellTypes.FIRE;
             }

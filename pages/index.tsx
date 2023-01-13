@@ -18,7 +18,7 @@ const Login: NextPage = () => {
     <Page title="Login">
       <div className="flex flex-col">
         <h1 className="font-bold leading-tight text-5xl mt-0 mb-2 text-black mb-16">
-          WORD WORM
+          WORD WURM
         </h1>
 
         <button

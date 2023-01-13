@@ -1,6 +1,7 @@
 export enum CellTypes {
   NONE = 1,
   FIRE = 2,
+  EMERALD = 3,
 }
 
 export enum Page {
