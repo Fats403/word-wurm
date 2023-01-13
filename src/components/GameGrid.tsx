@@ -78,15 +78,15 @@ const GameGrid = (): JSX.Element => {
       </div>
       <div className="flex flex-row justify-between items-end">
         <div className="flex flex-col">
-          <div className="flex flex-row text-sm">
+          <div className="flex flex-row text-sm select-none">
             <p className="select-none font-medium mr-1">Level:</p>
             {level}
           </div>
-          <div className="flex flex-row text-sm">
+          <div className="flex flex-row text-sm select-none">
             <p className="select-none font-medium mr-1">Score:</p>
             {totalScore}
           </div>
-          <div className="flex flex-row text-sm">
+          <div className="flex flex-row text-sm select-none">
             <p className="select-none font-medium mr-1">Longest Word:</p>
             {longestWord}
           </div>

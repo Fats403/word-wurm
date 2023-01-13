@@ -28,13 +28,13 @@ export const fireTileChance: any = {
   1: 0.0,
   2: 0.1,
   3: 0.12,
-  4: 0.15,
-  5: 0.17,
-  6: 0.19,
-  7: 0.21,
-  8: 0.24,
-  9: 0.27,
-  10: 0.33,
+  4: 0.14,
+  5: 0.16,
+  6: 0.18,
+  7: 0.2,
+  8: 0.23,
+  9: 0.26,
+  10: 0.3,
 };
 
 export const levelToLetterRarityChance: any = {
