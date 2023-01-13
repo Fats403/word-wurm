@@ -17,16 +17,17 @@ const Learn: NextPage = () => {
           </li>
           <li className="mb-4 text-center text-sm">
             The length of the word and the rarity of the letters will increase
-            the overall score of your word!
+            the overall score of your word. Getting words that are 5 or longer
+            can spawn emerald tiles that can be used to get even more points!
           </li>
           <li className="mb-4 text-center text-sm">
             Watch out for red burning tiles, they burn the tile below them. If
             they reach the bottom its game over!
           </li>
           <li className="mb-6 text-center text-sm">
-            Scrambling the board will randomize all the tiles to a new letter
-            not including burning tiles. It will also give you more burning
-            tiles.
+            {
+              "Scrambling the board will create more burning tiles and will randomize all the tiles to a new letters (excluding burning or emerald tiles)."
+            }
           </li>
           <p className="font-bold text-center">Good Luck!</p>
         </ul>

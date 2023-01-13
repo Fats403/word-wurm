@@ -10,7 +10,7 @@ const Login: NextPage = () => {
 
   const signInWithGoogle = () => {
     signInWithPopup(auth, googleAuthProvider)
-      .then(() => router.push("/game"))
+      .then(() => router.push("/play"))
       .catch((e: Error) => console.log("Google login failed", e));
   };
 
@@ -22,7 +22,7 @@ const Login: NextPage = () => {
         </h1>
 
         <button
-          onClick={() => router.push("/game")}
+          onClick={() => router.push("/play")}
           type="button"
           className="text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center"
         >
