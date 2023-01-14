@@ -10,7 +10,7 @@ export const LETTER_RARITY_MID = 2;
 export const LETTER_RARITY_HIGH = 1;
 
 export const scoreToLevelMap: number[] = [
-  2000, 6000, 12000, 20000, 30000, 42000, 58000, 76000, 96000, 120000,
+  2000, 8000, 14000, 22000, 34000, 48000, 64000, 96000, 130000,
 ];
 
 export const lengthMultipliers: any = {
@@ -32,9 +32,9 @@ export const fireTileChance: any = {
   5: 0.16,
   6: 0.18,
   7: 0.2,
-  8: 0.23,
-  9: 0.26,
-  10: 0.3,
+  8: 0.22,
+  9: 0.24,
+  10: 0.28,
 };
 
 export const levelToLetterRarityChance: any = {
@@ -60,13 +60,13 @@ export const levelToLetterRarityChance: any = {
   },
   5: {
     [LETTER_RARITY_LOW]: 0.56,
-    [LETTER_RARITY_MID]: 0.3,
-    [LETTER_RARITY_HIGH]: 0.14,
+    [LETTER_RARITY_MID]: 0.31,
+    [LETTER_RARITY_HIGH]: 0.13,
   },
   6: {
     [LETTER_RARITY_LOW]: 0.53,
     [LETTER_RARITY_MID]: 0.32,
-    [LETTER_RARITY_HIGH]: 0.15,
+    [LETTER_RARITY_HIGH]: 0.14,
   },
   7: {
     [LETTER_RARITY_LOW]: 0.52,
@@ -75,17 +75,17 @@ export const levelToLetterRarityChance: any = {
   },
   8: {
     [LETTER_RARITY_LOW]: 0.5,
-    [LETTER_RARITY_MID]: 0.32,
-    [LETTER_RARITY_HIGH]: 0.18,
+    [LETTER_RARITY_MID]: 0.33,
+    [LETTER_RARITY_HIGH]: 0.17,
   },
   9: {
     [LETTER_RARITY_LOW]: 0.48,
-    [LETTER_RARITY_MID]: 0.32,
-    [LETTER_RARITY_HIGH]: 0.2,
+    [LETTER_RARITY_MID]: 0.34,
+    [LETTER_RARITY_HIGH]: 0.18,
   },
   10: {
     [LETTER_RARITY_LOW]: 0.45,
-    [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.22,
+    [LETTER_RARITY_MID]: 0.36,
+    [LETTER_RARITY_HIGH]: 0.19,
   },
 };

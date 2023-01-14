@@ -30,6 +30,7 @@ import shuffle from "../utils/shuffle";
 import { auth, firestore } from "../services/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import randomNumber from "../utils/randomNumber";
+import { extendedDictionary } from "../utils/extendedDictionary";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -45,6 +46,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
   const [totalScore, setTotalScore] = useState<number>(0);
   const [longestWord, setLongestWord] = useState<string>("");
+  const [bestWordScore, setBestWordScore] = useState<number>(0);
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [sentHighscore, setSentHighscore] = useState<boolean>(false);
@@ -82,6 +84,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   useEffect(() => {
     // retrieveCurrentHighScore();
+    console.log(wordExists("don"));
     setGameGrid(createNewGameGrid());
   }, [createNewGameGrid, retrieveCurrentHighScore, setGameGrid]);
 
@@ -190,8 +193,16 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const isValidWord = useMemo((): boolean => {
     if (selectedLettersString.length <= 2) return false;
+
     const sanitizedString = selectedLettersString.toLowerCase();
-    return wordExists(sanitizedString);
+
+    if (
+      wordExists(sanitizedString) ||
+      extendedDictionary.includes(sanitizedString)
+    )
+      return true;
+
+    return false;
   }, [selectedLettersString]);
 
   const wordScore = useMemo((): number | null => {
@@ -274,7 +285,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
       setIsGameOver(true);
     }
 
-    let setBonusTile = false;
+    const randomBonusTileCol = Math.round(
+      randomNumber(0, gameSettings.numCellsX - 1)
+    );
 
     setGameGrid((grid) => {
       const newGrid: GameCellData[][] = [];
@@ -298,9 +311,37 @@ const GameProvider = ({ children }: GameProviderProps) => {
               (cell.type === CellTypes.FIRE &&
                 cellAbove.type !== CellTypes.FIRE)
             ) {
-              cell.y = yIndex;
+              cell.y = yIndex--;
               newCol.push(cell);
-              --yIndex;
+            }
+          }
+        }
+
+        if (columnIndex === randomBonusTileCol && newCol.length > 0) {
+          if (
+            selectedLettersString.length >= 7 ||
+            (selectedLettersString.length >= 5 &&
+              Math.random() < spawnEmeraldTileChance)
+          ) {
+            const availableCells: any = newCol.reduce((acc: any, cur: any) => {
+              if (cur.type === CellTypes.NONE) acc.push(cur);
+              return acc;
+            }, []);
+
+            if (availableCells.length > 0) {
+              const randomCellIndex = Math.round(
+                randomNumber(0, availableCells.length - 1)
+              );
+
+              const randomCell = availableCells[randomCellIndex];
+              const indxOfRandomCellInNewCol = newCol.findIndex(
+                (c) => c.x === randomCell.x && c.y === randomCell.y
+              );
+
+              newCol[indxOfRandomCellInNewCol] = {
+                ...newCol[indxOfRandomCellInNewCol],
+                type: CellTypes.EMERALD,
+              };
             }
           }
         }
@@ -315,14 +356,13 @@ const GameProvider = ({ children }: GameProviderProps) => {
         const newLetters = generateNewLetters(numNewLetters);
         const newLettersGameCells = [];
 
-        const randomNewLetterIndex = Math.round(randomNumber(1, numNewLetters));
-
         for (i = 1; i <= numNewLetters; i++) {
           let newLetterType: number = CellTypes.NONE;
           if (
             selectedLettersString.length === 3 ||
             selectedLettersString.length === 4
           ) {
+            // base burning tile chance for 3 letter words
             const baseChance = fireTileChance[level];
 
             // NOTE: deduct 5 - 10 percent chance off the base chance for four letter words
@@ -333,18 +373,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
             if (random < baseChance - bonusChance) {
               newLetterType = CellTypes.FIRE;
             }
-          } else if (i === randomNewLetterIndex && !setBonusTile) {
-            if (selectedLettersString.length >= 7) {
-              newLetterType = CellTypes.EMERALD;
-              setBonusTile = true;
-            } else if (selectedLettersString.length >= 5) {
-              const random = Math.random();
-              if (random < spawnEmeraldTileChance) {
-                newLetterType = CellTypes.EMERALD;
-              }
-              setBonusTile = true;
-            }
           }
+
           const newLetter: GameCellData = {
             value: newLetters[i - 1],
             selected: false,
@@ -352,6 +382,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
             y: numNewLetters - i,
             x: columnIndex,
           };
+
           newLettersGameCells.push(newLetter);
         }
 
@@ -367,6 +398,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     setSelectedLetters([]);
   }, [
     gameGrid,
+    gameSettings.numCellsX,
     gameSettings.numCellsY,
     generateNewLetters,
     getGridCell,
@@ -380,7 +412,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     const _score = wordScore ?? 0;
     setTotalScore((score) => score + _score);
 
-    if (selectedLettersString.length > longestWord.length) {
+    if (selectedLettersString.length >= longestWord.length) {
       setLongestWord(selectedLettersString.toUpperCase());
     }
 

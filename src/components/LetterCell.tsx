@@ -38,10 +38,10 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
           {tierString}
         </span>
         {type === CellTypes.FIRE && (
-          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-red-600 animate-pulse opacity-70"></div>
+          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-red-600 animate-pulse opacity-40"></div>
         )}
         {type === CellTypes.EMERALD && (
-          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-green-600 animate-pulse opacity-70"></div>
+          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-green-600 animate-pulse opacity-40"></div>
         )}
       </div>
     </div>
