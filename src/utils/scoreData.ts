@@ -2,7 +2,6 @@ export const maxLevel = 10;
 export const maxScoreMultiplier = 3.5;
 export const maxLetterMultiplierLength = 10;
 
-export const spawnEmeraldTileChance = 0.5;
 export const baseEmeraldValueMultiplier = 0.5;
 
 export const LETTER_RARITY_LOW = 3;
@@ -12,6 +11,12 @@ export const LETTER_RARITY_HIGH = 1;
 export const scoreToLevelMap: number[] = [
   2000, 8000, 14000, 22000, 34000, 48000, 64000, 96000, 130000,
 ];
+
+export const emeraldTileSpawnChance: any = {
+  5: 0.2,
+  6: 0.3,
+  7: 0.6,
+};
 
 export const lengthMultipliers: any = {
   3: 1.0,

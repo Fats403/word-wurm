@@ -13,13 +13,13 @@ import {
 import consonants from "../utils/consonants";
 import {
   baseEmeraldValueMultiplier,
+  emeraldTileSpawnChance,
   fireTileChance,
   lengthMultipliers,
   maxLetterMultiplierLength,
   maxLevel,
   maxScoreMultiplier,
   scoreToLevelMap,
-  spawnEmeraldTileChance,
 } from "../utils/scoreData";
 import {
   generateNewConsonant,
@@ -39,7 +39,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     numCellsX: 7,
     numCellsY: 7,
     cellSize: 50,
-    consonantRatio: 0.7,
+    consonantRatio: 0.67,
   });
 
   const [currentHighscore, setCurrentHighscore] = useState<any>(null);
@@ -317,12 +317,17 @@ const GameProvider = ({ children }: GameProviderProps) => {
           }
         }
 
-        if (columnIndex === randomBonusTileCol && newCol.length > 0) {
-          if (
-            selectedLettersString.length >= 7 ||
-            (selectedLettersString.length >= 5 &&
-              Math.random() < spawnEmeraldTileChance)
-          ) {
+        if (
+          selectedLettersString.length >= 5 &&
+          columnIndex === randomBonusTileCol &&
+          newCol.length > 0
+        ) {
+          const spawnChance: number =
+            selectedLettersString.length >= 8
+              ? 1
+              : emeraldTileSpawnChance?.[selectedLettersString.length] || 0.2;
+
+          if (Math.random() < spawnChance) {
             const availableCells: any = newCol.reduce((acc: any, cur: any) => {
               if (cur.type === CellTypes.NONE) acc.push(cur);
               return acc;
