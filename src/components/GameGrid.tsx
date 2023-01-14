@@ -22,7 +22,10 @@ const GameGrid = (): JSX.Element => {
 
   const gridWidth: number = numCellsX * cellSize;
   const gridHeight: number = numCellsY * cellSize + cellSize / 2 - numCellsY;
+
   const submitDisabled: boolean = !isValidWord || isGameOver;
+  const shuffleDisabled: boolean =
+    Boolean(selectedLetters.length) || isGameOver;
 
   return (
     <div>
@@ -92,7 +95,7 @@ const GameGrid = (): JSX.Element => {
           </div>
         </div>
         <button
-          disabled={Boolean(selectedLetters.length) || isGameOver}
+          disabled={shuffleDisabled}
           onClick={() => shuffleGameBoard()}
           className={
             "mr-1 max-h-12  justify-end relative rounded px-5 py-2.5 overflow-hidden group bg-red-500 relative enabled:hover:bg-gradient-to-r enabled:hover:from-red-500 enabled:hover:to-red-400 text-white enabled:hover:ring-2 enabled:hover:ring-offset-1 hover:ring-red-400 transition-all ease-out duration-300 disabled:text-gray-400 disabled:bg-white disabled:border-gray-300 border"

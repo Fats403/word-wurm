@@ -60,7 +60,7 @@ const Highscores: NextPage = () => {
           ) : (
             <div className="flex flex-col overflow-auto h-80">
               {highscores?.map((data: any, index: number) => {
-                if (index > 10) return;
+                if (index >= 10) return;
                 return (
                   <li key={index} className="flex items-center my-2 space-x-2 ">
                     <div
