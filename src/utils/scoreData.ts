@@ -13,9 +13,8 @@ export const scoreToLevelMap: number[] = [
 ];
 
 export const emeraldTileSpawnChance: any = {
-  5: 0.2,
-  6: 0.3,
-  7: 0.6,
+  5: 0.25,
+  6: 0.5,
 };
 
 export const lengthMultipliers: any = {

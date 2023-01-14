@@ -323,9 +323,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
           newCol.length > 0
         ) {
           const spawnChance: number =
-            selectedLettersString.length >= 8
+            selectedLettersString.length >= 7
               ? 1
-              : emeraldTileSpawnChance?.[selectedLettersString.length] || 0.2;
+              : emeraldTileSpawnChance?.[selectedLettersString.length] || 0.25;
 
           if (Math.random() < spawnChance) {
             const availableCells: any = newCol.reduce((acc: any, cur: any) => {
