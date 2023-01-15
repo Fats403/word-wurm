@@ -1,13 +1,16 @@
-export const maxLevel = 10;
 export const maxScoreMultiplier = 3.5;
 export const maxLetterMultiplierLength = 10;
 
 export const baseEmeraldValueMultiplier = 0.5;
 
+export const baseBonusWordLength = 3;
+export const bonusWordMultiplier = 3.5;
+
 export const LETTER_RARITY_LOW = 3;
 export const LETTER_RARITY_MID = 2;
 export const LETTER_RARITY_HIGH = 1;
 
+export const maxLevel = 10;
 export const scoreToLevelMap: number[] = [
   2000, 8000, 14000, 22000, 34000, 48000, 64000, 96000, 130000,
 ];
@@ -35,10 +38,10 @@ export const fireTileChance: any = {
   4: 0.14,
   5: 0.16,
   6: 0.18,
-  7: 0.2,
-  8: 0.22,
-  9: 0.24,
-  10: 0.28,
+  7: 0.19,
+  8: 0.21,
+  9: 0.23,
+  10: 0.25,
 };
 
 export const levelToLetterRarityChance: any = {

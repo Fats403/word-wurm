@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useGameGrid } from "../hooks/useGameGrid";
-import wordExists from "word-exists";
+import wordLib from "word-lib";
 import {
   CellTypes,
   GameCellData,
@@ -12,7 +12,9 @@ import {
 } from "../types";
 import consonants from "../utils/consonants";
 import {
+  baseBonusWordLength,
   baseEmeraldValueMultiplier,
+  bonusWordMultiplier,
   emeraldTileSpawnChance,
   fireTileChance,
   lengthMultipliers,
@@ -47,6 +49,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [totalScore, setTotalScore] = useState<number>(0);
   const [longestWord, setLongestWord] = useState<string>("");
   const [bestWordScore, setBestWordScore] = useState<number>(0);
+
+  const [bonusWordMaxLength, setBonusWordMaxLength] = useState<number>(3);
+  const [bonusWord, setBonusWord] = useState<string>("");
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [sentHighscore, setSentHighscore] = useState<boolean>(false);
@@ -83,10 +88,14 @@ const GameProvider = ({ children }: GameProviderProps) => {
   }, [setCurrentHighscore]);
 
   useEffect(() => {
-    // retrieveCurrentHighScore();
-    console.log(wordExists("don"));
+    setBonusWord(wordLib.random(bonusWordMaxLength));
     setGameGrid(createNewGameGrid());
-  }, [createNewGameGrid, retrieveCurrentHighScore, setGameGrid]);
+  }, [
+    bonusWordMaxLength,
+    createNewGameGrid,
+    retrieveCurrentHighScore,
+    setGameGrid,
+  ]);
 
   const lastSelectedNeighbours = useMemo((): GameCellData[] | null => {
     if (selectedLetters.length === 0) return null;
@@ -197,7 +206,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     const sanitizedString = selectedLettersString.toLowerCase();
 
     if (
-      wordExists(sanitizedString) ||
+      wordLib.exists(sanitizedString) ||
       extendedDictionary.includes(sanitizedString)
     )
       return true;
@@ -209,6 +218,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     if (!isValidWord) return null;
 
     let score = 0;
+    let addBonusMultiplier = false;
 
     const lengthMultiplier: number =
       selectedLettersString.length >= maxLetterMultiplierLength
@@ -225,12 +235,17 @@ const GameProvider = ({ children }: GameProviderProps) => {
       0
     );
 
+    if (selectedLettersString.toLowerCase() === bonusWord) {
+      addBonusMultiplier = true;
+    }
+
     return Math.round(
       score *
         lengthMultiplier *
-        (1 + numEmeraldTiles * baseEmeraldValueMultiplier)
+        (1 + numEmeraldTiles * baseEmeraldValueMultiplier) *
+        (addBonusMultiplier ? bonusWordMultiplier : 1)
     );
-  }, [isValidWord, selectedLetters, selectedLettersString.length]);
+  }, [bonusWord, isValidWord, selectedLetters, selectedLettersString]);
 
   const generateNewLetters = useCallback(
     (numLetters: number): string[] => {
@@ -417,8 +432,14 @@ const GameProvider = ({ children }: GameProviderProps) => {
     const _score = wordScore ?? 0;
     setTotalScore((score) => score + _score);
 
-    if (selectedLettersString.length >= longestWord.length) {
+    if (selectedLettersString.length > longestWord.length) {
       setLongestWord(selectedLettersString.toUpperCase());
+    }
+
+    if (selectedLettersString.toLowerCase() === bonusWord) {
+      const newBonusWordLength =
+        baseBonusWordLength + Math.round(Math.random() * Math.floor(level / 5));
+      setBonusWord(wordLib.random(newBonusWordLength));
     }
 
     updateGameGridState();
@@ -426,11 +447,13 @@ const GameProvider = ({ children }: GameProviderProps) => {
     wordScore,
     selectedLettersString,
     longestWord.length,
+    bonusWord,
     updateGameGridState,
+    level,
   ]);
 
   const shuffleGameBoard = useCallback((): void => {
-    const numFireTiles = 2 + Math.floor(Math.random() * Math.floor(level / 3));
+    const numFireTiles = 2 + Math.round(Math.random() * Math.floor(level / 4));
 
     const shouldBeFireCell: boolean[] = shuffle(
       Array.from({ length: gameSettings.numCellsX }, (_, i) =>
@@ -488,6 +511,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
     setSelectedLetters([]);
     setLongestWord("");
     setTotalScore(0);
+    setBonusWordMaxLength(baseBonusWordLength);
+    setBonusWord(wordLib.random(baseBonusWordLength));
 
     setGameGrid(createNewGameGrid());
     setIsGameOver(false);
@@ -529,9 +554,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     <GameContext.Provider
       value={{
         level,
-        resetGame,
-        submitWord,
-        submitHighscore,
+        bonusWord,
         currentHighscore,
         sentHighscore,
         isGameOver,
@@ -543,6 +566,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
         gameGrid,
         gameSettings,
         toast,
+        resetGame,
+        submitWord,
+        submitHighscore,
         showToast,
         selectLetter,
         shuffleGameBoard,

@@ -14,7 +14,6 @@ const GameGrid = (): JSX.Element => {
     isGameOver,
     selectedLetters,
     wordScore,
-    longestWord,
     totalScore,
     level,
     gameSettings: { numCellsX, numCellsY, cellSize },
@@ -28,12 +27,12 @@ const GameGrid = (): JSX.Element => {
     Boolean(selectedLetters.length) || isGameOver;
 
   return (
-    <div>
+    <div className="p-4 bg-white shadow-lg border border-gray-500 rounded-xl">
       <div className="flex flex-row justify-between w-full items-center">
         <div className="flex flex-col text-sm">
           <div className="flex flex-row">
             <p className="select-none font-medium mr-2 text-sm">Word Score: </p>
-            {wordScore}
+            {wordScore || "-"}
           </div>
           <div className="flex flex-row text-sm">
             <p className="select-none font-medium mr-2 text-sm">
@@ -42,7 +41,7 @@ const GameGrid = (): JSX.Element => {
             {selectedLetters
               .map((l) => l.value)
               .join("")
-              .toUpperCase()}
+              .toUpperCase() || "-"}
           </div>
         </div>
         <button
@@ -88,10 +87,6 @@ const GameGrid = (): JSX.Element => {
           <div className="flex flex-row text-sm select-none">
             <p className="select-none font-medium mr-1">Score:</p>
             {totalScore}
-          </div>
-          <div className="flex flex-row text-sm select-none">
-            <p className="select-none font-medium mr-1">Longest Word:</p>
-            {longestWord}
           </div>
         </div>
         <button

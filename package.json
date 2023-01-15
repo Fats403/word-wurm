@@ -11,7 +11,7 @@
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "word-exists": "^1.0.0"
+    "word-lib": "^1.0.5"
   },
   "devDependencies": {
     "@types/node": "18.11.3",

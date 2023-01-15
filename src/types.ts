@@ -70,6 +70,7 @@ export type GameContextType = {
   currentHighscore: any;
   wordScore: number | null;
   longestWord: string;
+  bonusWord: string;
   level: number;
   totalScore: number;
   isValidWord: boolean;
