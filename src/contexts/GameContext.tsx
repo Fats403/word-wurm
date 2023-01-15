@@ -13,11 +13,13 @@ import {
 import consonants from "../utils/consonants";
 import {
   baseBonusWordLength,
-  baseEmeraldValueMultiplier,
+  baseEmeraldValue,
+  baseSaphireValue,
+  bonusCellSpawnChance,
   bonusWordMultiplier,
-  emeraldTileSpawnChance,
   fireTileChance,
   lengthMultipliers,
+  maxBonusCellLength,
   maxLetterMultiplierLength,
   maxLevel,
   maxScoreMultiplier,
@@ -41,7 +43,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     numCellsX: 7,
     numCellsY: 7,
     cellSize: 50,
-    consonantRatio: 0.67,
+    consonantRatio: 0.68,
   });
 
   const [currentHighscore, setCurrentHighscore] = useState<any>(null);
@@ -50,7 +52,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [longestWord, setLongestWord] = useState<string>("");
   const [bestWordScore, setBestWordScore] = useState<number>(0);
 
-  const [bonusWordMaxLength, setBonusWordMaxLength] = useState<number>(3);
+  const [bonusWordMaxLength, setBonusWordMaxLength] =
+    useState<number>(baseBonusWordLength);
   const [bonusWord, setBonusWord] = useState<string>("");
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
@@ -235,6 +238,16 @@ const GameProvider = ({ children }: GameProviderProps) => {
       0
     );
 
+    const numSaphireTiles = selectedLetters.reduce(
+      (acc, cur) => (cur.type === CellTypes.SAPHIRE ? ++acc : acc),
+      0
+    );
+
+    const bonusCellMultiplier =
+      1 +
+      numEmeraldTiles * baseEmeraldValue +
+      numSaphireTiles * baseSaphireValue;
+
     if (selectedLettersString.toLowerCase() === bonusWord) {
       addBonusMultiplier = true;
     }
@@ -242,7 +255,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     return Math.round(
       score *
         lengthMultiplier *
-        (1 + numEmeraldTiles * baseEmeraldValueMultiplier) *
+        bonusCellMultiplier *
         (addBonusMultiplier ? bonusWordMultiplier : 1)
     );
   }, [bonusWord, isValidWord, selectedLetters, selectedLettersString]);
@@ -337,12 +350,12 @@ const GameProvider = ({ children }: GameProviderProps) => {
           columnIndex === randomBonusTileCol &&
           newCol.length > 0
         ) {
-          const spawnChance: number =
-            selectedLettersString.length >= 7
-              ? 1
-              : emeraldTileSpawnChance?.[selectedLettersString.length] || 0.25;
+          const bonusCellData =
+            selectedLettersString.length <= maxBonusCellLength
+              ? bonusCellSpawnChance[selectedLettersString.length]
+              : bonusCellSpawnChance[maxBonusCellLength];
 
-          if (Math.random() < spawnChance) {
+          if (Math.random() < bonusCellData.chance) {
             const availableCells: any = newCol.reduce((acc: any, cur: any) => {
               if (cur.type === CellTypes.NONE) acc.push(cur);
               return acc;
@@ -360,7 +373,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
               newCol[indxOfRandomCellInNewCol] = {
                 ...newCol[indxOfRandomCellInNewCol],
-                type: CellTypes.EMERALD,
+                type: bonusCellData.type,
               };
             }
           }
@@ -486,10 +499,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
         col.forEach((cell, yIndex) => {
           const gameCell: GameCellData = Object.assign({}, cell);
-          if (
-            gameCell.type !== CellTypes.FIRE &&
-            gameCell.type !== CellTypes.EMERALD
-          ) {
+          if (gameCell.type === CellTypes.NONE) {
             if (yIndex === 0 && shouldBeFireCell[xIndex]) {
               gameCell.type = CellTypes.FIRE;
             }

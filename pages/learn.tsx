@@ -12,13 +12,15 @@ const Learn: NextPage = () => {
         <p className="font-bold text-black text-xl mb-6">Learn To Play</p>
         <ul>
           <li className="mb-4 text-center text-sm">
-            Click on the letters to link them into words. Click on submit to add
-            your word score to your total score.
+            Click on a letter to start making a word. You can select any letter
+            that is touching your last selected letter. Once you have made a
+            word, you can click submit to add its score to your points.
           </li>
           <li className="mb-4 text-center text-sm">
             The length of the word and the rarity of the letters will increase
             the overall score of your word. Getting words that are 5 or longer
-            can spawn emerald tiles that can be used to get even more points!
+            can spawn emerald and saphire tiles that can be used to get even
+            more points!
           </li>
           <li className="mb-4 text-center text-sm">
             Watch out for red burning tiles, they burn the tile below them. If

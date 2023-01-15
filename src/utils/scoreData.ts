@@ -1,7 +1,10 @@
+import { CellTypes } from "../types";
+
 export const maxScoreMultiplier = 3.5;
 export const maxLetterMultiplierLength = 10;
 
-export const baseEmeraldValueMultiplier = 0.5;
+export const baseEmeraldValue = 0.5;
+export const baseSaphireValue = 1.5;
 
 export const baseBonusWordLength = 3;
 export const bonusWordMultiplier = 3.5;
@@ -15,9 +18,25 @@ export const scoreToLevelMap: number[] = [
   2000, 8000, 14000, 22000, 34000, 48000, 64000, 96000, 130000,
 ];
 
-export const emeraldTileSpawnChance: any = {
-  5: 0.25,
-  6: 0.5,
+export const maxBonusCellLength = 8;
+
+export const bonusCellSpawnChance: any = {
+  5: {
+    type: CellTypes.EMERALD,
+    chance: 0.25,
+  },
+  6: {
+    type: CellTypes.EMERALD,
+    chance: 0.55,
+  },
+  7: {
+    type: CellTypes.SAPHIRE,
+    chance: 0.75,
+  },
+  8: {
+    type: CellTypes.SAPHIRE,
+    chance: 1,
+  },
 };
 
 export const lengthMultipliers: any = {
@@ -83,16 +102,16 @@ export const levelToLetterRarityChance: any = {
   8: {
     [LETTER_RARITY_LOW]: 0.5,
     [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.17,
+    [LETTER_RARITY_HIGH]: 0.16,
   },
   9: {
     [LETTER_RARITY_LOW]: 0.48,
     [LETTER_RARITY_MID]: 0.34,
-    [LETTER_RARITY_HIGH]: 0.18,
+    [LETTER_RARITY_HIGH]: 0.17,
   },
   10: {
     [LETTER_RARITY_LOW]: 0.45,
     [LETTER_RARITY_MID]: 0.36,
-    [LETTER_RARITY_HIGH]: 0.19,
+    [LETTER_RARITY_HIGH]: 0.18,
   },
 };

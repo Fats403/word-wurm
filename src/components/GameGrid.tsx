@@ -30,11 +30,11 @@ const GameGrid = (): JSX.Element => {
     <div className="p-4 bg-white shadow-lg border border-gray-500 rounded-xl">
       <div className="flex flex-row justify-between w-full items-center">
         <div className="flex flex-col text-sm">
-          <div className="flex flex-row">
+          <div className="flex flex-row select-none">
             <p className="select-none font-medium mr-2 text-sm">Word Score: </p>
             {wordScore || "-"}
           </div>
-          <div className="flex flex-row text-sm">
+          <div className="flex flex-row text-sm select-none">
             <p className="select-none font-medium mr-2 text-sm">
               Selected Letters:{" "}
             </p>
