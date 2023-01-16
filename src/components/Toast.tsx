@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { GameContext } from "../contexts/GameContext";
-import { GameContextType } from "../types";
+import { ToastContext, ToastContextState } from "../contexts/ToastContext";
 
 const variants = {
   open: { opacity: 1, y: 0 },
@@ -10,16 +9,16 @@ const variants = {
 
 const Toast = (): JSX.Element => {
   const refTimer = useRef<number | null>(null);
-  const { toast, showToast } = useContext(GameContext) as GameContextType;
+  const { toast, hideToast } = useContext(ToastContext) as ToastContextState;
 
   const clearToast = useCallback(() => {
-    showToast({ ...toast, visible: false });
+    hideToast();
 
     if (refTimer.current) {
       clearTimeout(refTimer.current);
       refTimer.current = null;
     }
-  }, [showToast, toast]);
+  }, [hideToast]);
 
   useEffect(() => {
     () => clearToast();
@@ -31,12 +30,12 @@ const Toast = (): JSX.Element => {
       animate={toast.visible ? "open" : "closed"}
       onAnimationComplete={() => {
         refTimer.current = window.setTimeout(() => {
-          clearToast();
+          //clearToast();
         }, toast.duration);
       }}
       variants={variants}
       id="toast"
-      className=" fixed bottom-0 flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+      className=" fixed bottom-0 flex items-center w-full justify-center max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
       role="alert"
     >
       <div className="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">

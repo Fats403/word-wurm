@@ -4,6 +4,10 @@ import { GameContext } from "../contexts/GameContext";
 import { auth, googleAuthProvider } from "../services/firebase";
 import { GameContextType } from "../types";
 import { useRouter } from "next/router";
+import {
+  FirebaseContext,
+  FirebaseContextState,
+} from "../contexts/FirebaseContext";
 
 const GameOver = (): JSX.Element => {
   const router = useRouter();
@@ -15,8 +19,10 @@ const GameOver = (): JSX.Element => {
     submitHighscore,
   } = useContext(GameContext) as GameContextType;
 
+  const { user } = useContext(FirebaseContext) as FirebaseContextState;
+
   const highscoreSubmitDisabled =
-    !auth?.currentUser ||
+    !user ||
     totalScore === 0 ||
     sentHighscore ||
     (currentHighscore && totalScore <= currentHighscore?.totalScore);
@@ -63,7 +69,7 @@ const GameOver = (): JSX.Element => {
         Submit Highscore
       </button>
 
-      {!auth.currentUser && !sentHighscore && (
+      {!user && !sentHighscore && (
         <p className="text-sm text-center text-white my-2 select-none">
           <a
             className="cursor-pointer"

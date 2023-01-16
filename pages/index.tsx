@@ -1,12 +1,17 @@
 import { signInWithPopup } from "firebase/auth";
 import { NextPage } from "next";
-import React from "react";
+import React, { useContext } from "react";
 import Page from "../src/components/Page";
 import { auth, googleAuthProvider } from "../src/services/firebase";
 import { useRouter } from "next/router";
+import {
+  FirebaseContext,
+  FirebaseContextState,
+} from "../src/contexts/FirebaseContext";
 
 const Login: NextPage = () => {
   const router = useRouter();
+  const { user } = useContext(FirebaseContext) as FirebaseContextState;
 
   const signInWithGoogle = () => {
     signInWithPopup(auth, googleAuthProvider)
@@ -26,7 +31,7 @@ const Login: NextPage = () => {
           type="button"
           className="text-white bg-[#000000] hover:bg-[#000000]/90 font-medium rounded-lg text-sm px-10 py-2.5 text-center text-center"
         >
-          {auth?.currentUser ? "Play" : "Play as guest"}
+          {user ? "Play" : "Play as guest"}
         </button>
         <button
           onClick={() => signInWithGoogle()}

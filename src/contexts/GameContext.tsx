@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useGameGrid } from "../hooks/useGameGrid";
 import wordLib from "word-lib";
 import {
@@ -7,8 +13,6 @@ import {
   GameContextType,
   GameProviderProps,
   GameSettingsType,
-  ToastProps,
-  ToastTypes,
 } from "../types";
 import consonants from "../utils/consonants";
 import {
@@ -34,7 +38,8 @@ import shuffle from "../utils/shuffle";
 import { auth, firestore } from "../services/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import randomNumber from "../utils/randomNumber";
-import { extendedDictionary } from "../utils/extendedDictionary";
+import { ToastContext, ToastContextState, ToastTypes } from "./ToastContext";
+import { FirebaseContext, FirebaseContextState } from "./FirebaseContext";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -45,6 +50,11 @@ const GameProvider = ({ children }: GameProviderProps) => {
     cellSize: 50,
     consonantRatio: 0.68,
   });
+
+  const { showToast } = useContext(ToastContext) as ToastContextState;
+  const { user, savedGameState, clearGameState } = useContext(
+    FirebaseContext
+  ) as FirebaseContextState;
 
   const [currentHighscore, setCurrentHighscore] = useState<any>(null);
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
@@ -58,24 +68,20 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [sentHighscore, setSentHighscore] = useState<boolean>(false);
-  const [toast, setToast] = useState<ToastProps>({
-    message: "",
-    type: ToastTypes.SUCCESS,
-    duration: 3000,
-    visible: false,
-  });
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
     [selectedLetters]
   );
 
-  const { gameGrid, setGameGrid, getGridCell, setGridCell, createNewGameGrid } =
-    useGameGrid(gameSettings);
-
-  const showToast = useCallback((props: ToastProps): void => {
-    setToast({ ...props });
-  }, []);
+  const {
+    gameGrid,
+    setGameGrid,
+    getGridCell,
+    setGridCell,
+    createNewGameGrid,
+    loadGameGrid,
+  } = useGameGrid(gameSettings);
 
   const retrieveCurrentHighScore = useCallback(async (): Promise<void> => {
     if (!auth?.currentUser) return;
@@ -90,15 +96,33 @@ const GameProvider = ({ children }: GameProviderProps) => {
     setCurrentHighscore(null);
   }, [setCurrentHighscore]);
 
-  useEffect(() => {
-    setBonusWord(wordLib.random(bonusWordMaxLength));
-    setGameGrid(createNewGameGrid());
+  const initializeGameState = useCallback(() => {
+    savedGameState?.longestWord && setLongestWord(savedGameState.longestWord);
+    savedGameState?.totalScore && setTotalScore(savedGameState.totalScore);
+
+    setBonusWord(
+      savedGameState
+        ? savedGameState.bonusWord
+        : wordLib.random(bonusWordMaxLength)
+    );
+
+    const grid = savedGameState
+      ? loadGameGrid(Object.assign({}, savedGameState.grid))
+      : createNewGameGrid();
+
+    setGameGrid(grid);
   }, [
     bonusWordMaxLength,
     createNewGameGrid,
-    retrieveCurrentHighScore,
+    loadGameGrid,
+    savedGameState,
     setGameGrid,
   ]);
+
+  useEffect(() => {
+    if (isGameOver) return;
+    initializeGameState();
+  }, [initializeGameState, isGameOver]);
 
   const lastSelectedNeighbours = useMemo((): GameCellData[] | null => {
     if (selectedLetters.length === 0) return null;
@@ -208,13 +232,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     const sanitizedString = selectedLettersString.toLowerCase();
 
-    if (
-      wordLib.exists(sanitizedString) ||
-      extendedDictionary.includes(sanitizedString)
-    )
-      return true;
-
-    return false;
+    return wordLib.exists(sanitizedString);
   }, [selectedLettersString]);
 
   const wordScore = useMemo((): number | null => {
@@ -299,171 +317,198 @@ const GameProvider = ({ children }: GameProviderProps) => {
     [level, gameGrid, gameSettings.consonantRatio, selectedLetters]
   );
 
-  const updateGameGridState = useCallback(() => {
-    if (
-      gameGrid.some((col) =>
-        col.some(
-          (cell) =>
-            cell.y === gameSettings.numCellsY - 1 &&
-            cell.type === CellTypes.FIRE &&
-            !selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)
-        )
-      )
-    ) {
-      setIsGameOver(true);
-    }
+  const saveGameState = useCallback(
+    (newGrid: GameCellData[][], newStateValues: any): void => {
+      if (!user) return;
 
-    const randomBonusTileCol = Math.round(
-      randomNumber(0, gameSettings.numCellsX - 1)
-    );
+      const gameState: any = {
+        ...newStateValues,
+        grid: {},
+      };
 
-    setGameGrid((grid) => {
-      const newGrid: GameCellData[][] = [];
-
-      grid.forEach((col, columnIndex) => {
-        const newCol = [];
-        let i: number;
-
-        let yIndex: number = col.length - 1;
-        for (i = col.length - 1; i >= 0; i--) {
-          const cell: GameCellData = Object.assign({}, col[i]);
-          const cellAbove = getGridCell(cell.x, cell.y - 1);
-
-          if (!selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)) {
-            if (
-              !cellAbove ||
-              (cell.type !== CellTypes.FIRE &&
-                cellAbove.type !== CellTypes.FIRE) ||
-              (cell.type === CellTypes.FIRE &&
-                cellAbove.type === CellTypes.FIRE) ||
-              (cell.type === CellTypes.FIRE &&
-                cellAbove.type !== CellTypes.FIRE)
-            ) {
-              cell.y = yIndex--;
-              newCol.push(cell);
-            }
-          }
-        }
-
-        if (
-          selectedLettersString.length >= 5 &&
-          columnIndex === randomBonusTileCol &&
-          newCol.length > 0
-        ) {
-          const bonusCellData =
-            selectedLettersString.length <= maxBonusCellLength
-              ? bonusCellSpawnChance[selectedLettersString.length]
-              : bonusCellSpawnChance[maxBonusCellLength];
-
-          if (Math.random() < bonusCellData.chance) {
-            const availableCells: any = newCol.reduce((acc: any, cur: any) => {
-              if (cur.type === CellTypes.NONE) acc.push(cur);
-              return acc;
-            }, []);
-
-            if (availableCells.length > 0) {
-              const randomCellIndex = Math.round(
-                randomNumber(0, availableCells.length - 1)
-              );
-
-              const randomCell = availableCells[randomCellIndex];
-              const indxOfRandomCellInNewCol = newCol.findIndex(
-                (c) => c.x === randomCell.x && c.y === randomCell.y
-              );
-
-              newCol[indxOfRandomCellInNewCol] = {
-                ...newCol[indxOfRandomCellInNewCol],
-                type: bonusCellData.type,
-              };
-            }
-          }
-        }
-
-        if (newCol.length === col.length) {
-          newGrid[columnIndex] = newCol.reverse();
-          return;
-        }
-
-        const newColLength = newCol.length;
-        const numNewLetters = col.length - newColLength;
-        const newLetters = generateNewLetters(numNewLetters);
-        const newLettersGameCells = [];
-
-        for (i = 1; i <= numNewLetters; i++) {
-          let newLetterType: number = CellTypes.NONE;
-          if (
-            selectedLettersString.length === 3 ||
-            selectedLettersString.length === 4
-          ) {
-            // base burning tile chance for 3 letter words
-            const baseChance = fireTileChance[level];
-
-            // NOTE: deduct 5 - 10 percent chance off the base chance for four letter words
-            const bonusChance =
-              selectedLettersString.length === 4 ? randomNumber(0.05, 0.1) : 0;
-
-            const random = Math.random();
-            if (random < baseChance - bonusChance) {
-              newLetterType = CellTypes.FIRE;
-            }
-          }
-
-          const newLetter: GameCellData = {
-            value: newLetters[i - 1],
-            selected: false,
-            type: newLetterType,
-            y: numNewLetters - i,
-            x: columnIndex,
-          };
-
-          newLettersGameCells.push(newLetter);
-        }
-
-        const _col = [...newCol, ...newLettersGameCells].reverse();
-
-        newGrid[columnIndex] = _col;
+      newGrid.forEach((col: GameCellData[]) => {
+        col.forEach((cell: GameCellData) => {
+          gameState.grid[`${cell.x}-${cell.y}`] = cell;
+        });
       });
 
-      grid = newGrid;
-      return grid;
-    });
+      setDoc(
+        doc(firestore, "users", user.uid),
+        {
+          gameState,
+          id: user.uid,
+        },
+        { merge: true }
+      );
+    },
+    [user]
+  );
 
-    setSelectedLetters([]);
-  }, [
-    gameGrid,
-    gameSettings.numCellsX,
-    gameSettings.numCellsY,
-    generateNewLetters,
-    getGridCell,
-    level,
-    selectedLetters,
-    selectedLettersString.length,
-    setGameGrid,
-  ]);
+  const updateGameGridState = useCallback(
+    (newStateValues?: any) => {
+      let gameOver = false;
 
-  const submitWord = useCallback((): void => {
-    const _score = wordScore ?? 0;
-    setTotalScore((score) => score + _score);
+      if (
+        gameGrid.some((col) =>
+          col.some(
+            (cell) =>
+              cell.y === gameSettings.numCellsY - 1 &&
+              cell.type === CellTypes.FIRE &&
+              !selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)
+          )
+        )
+      ) {
+        gameOver = true;
+        setIsGameOver(true);
+      }
 
-    if (selectedLettersString.length > longestWord.length) {
-      setLongestWord(selectedLettersString.toUpperCase());
-    }
+      const randomBonusTileCol = Math.round(
+        randomNumber(0, gameSettings.numCellsX - 1)
+      );
 
-    if (selectedLettersString.toLowerCase() === bonusWord) {
-      const newBonusWordLength =
-        baseBonusWordLength + Math.round(Math.random() * Math.floor(level / 5));
-      setBonusWord(wordLib.random(newBonusWordLength));
-    }
+      setGameGrid((grid) => {
+        const newGrid: GameCellData[][] = [];
 
-    updateGameGridState();
-  }, [
-    wordScore,
-    selectedLettersString,
-    longestWord.length,
-    bonusWord,
-    updateGameGridState,
-    level,
-  ]);
+        grid.forEach((col, columnIndex) => {
+          const newCol = [];
+          let i: number;
+
+          let yIndex: number = col.length - 1;
+          for (i = col.length - 1; i >= 0; i--) {
+            const cell: GameCellData = Object.assign({}, col[i]);
+            const cellAbove = getGridCell(cell.x, cell.y - 1);
+
+            if (
+              !selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)
+            ) {
+              if (
+                !cellAbove ||
+                (cell.type !== CellTypes.FIRE &&
+                  cellAbove.type !== CellTypes.FIRE) ||
+                (cell.type === CellTypes.FIRE &&
+                  cellAbove.type === CellTypes.FIRE) ||
+                (cell.type === CellTypes.FIRE &&
+                  cellAbove.type !== CellTypes.FIRE)
+              ) {
+                cell.y = yIndex--;
+                newCol.push(cell);
+              }
+            }
+          }
+
+          if (
+            selectedLettersString.length >= 5 &&
+            columnIndex === randomBonusTileCol &&
+            newCol.length > 0
+          ) {
+            const bonusCellData =
+              selectedLettersString.length <= maxBonusCellLength
+                ? bonusCellSpawnChance[selectedLettersString.length]
+                : bonusCellSpawnChance[maxBonusCellLength];
+
+            if (Math.random() < bonusCellData.chance) {
+              const availableCells: any = newCol.reduce(
+                (acc: any, cur: any) => {
+                  if (cur.type === CellTypes.NONE) acc.push(cur);
+                  return acc;
+                },
+                []
+              );
+
+              if (availableCells.length > 0) {
+                const randomCellIndex = Math.round(
+                  randomNumber(0, availableCells.length - 1)
+                );
+
+                const randomCell = availableCells[randomCellIndex];
+                const indxOfRandomCellInNewCol = newCol.findIndex(
+                  (c) => c.x === randomCell.x && c.y === randomCell.y
+                );
+
+                newCol[indxOfRandomCellInNewCol] = {
+                  ...newCol[indxOfRandomCellInNewCol],
+                  type: bonusCellData.type,
+                };
+              }
+            }
+          }
+
+          if (newCol.length === col.length) {
+            newGrid[columnIndex] = newCol.reverse();
+            return;
+          }
+
+          const newColLength = newCol.length;
+          const numNewLetters = col.length - newColLength;
+          const newLetters = generateNewLetters(numNewLetters);
+          const newLettersGameCells = [];
+
+          for (i = 1; i <= numNewLetters; i++) {
+            let newLetterType: number = CellTypes.NONE;
+            if (
+              selectedLettersString.length === 3 ||
+              selectedLettersString.length === 4
+            ) {
+              // base burning tile chance for 3 letter words
+              const baseChance = fireTileChance[level];
+
+              // NOTE: deduct 5 - 10 percent chance off the base chance for four letter words
+              const bonusChance =
+                selectedLettersString.length === 4
+                  ? randomNumber(0.05, 0.1)
+                  : 0;
+
+              const random = Math.random();
+              if (random < baseChance - bonusChance) {
+                newLetterType = CellTypes.FIRE;
+              }
+            }
+
+            const newLetter: GameCellData = {
+              value: newLetters[i - 1],
+              selected: false,
+              type: newLetterType,
+              y: numNewLetters - i,
+              x: columnIndex,
+            };
+
+            newLettersGameCells.push(newLetter);
+          }
+
+          const _col = [...newCol, ...newLettersGameCells].reverse();
+
+          newGrid[columnIndex] = _col;
+        });
+
+        if (!gameOver) {
+          // save the game state if its not game over
+          saveGameState(newGrid, newStateValues);
+        }
+
+        grid = newGrid;
+        return grid;
+      });
+
+      if (gameOver) {
+        clearGameState();
+      }
+
+      setSelectedLetters([]);
+    },
+    [
+      clearGameState,
+      gameGrid,
+      gameSettings.numCellsX,
+      gameSettings.numCellsY,
+      generateNewLetters,
+      getGridCell,
+      level,
+      saveGameState,
+      selectedLetters,
+      selectedLettersString.length,
+      setGameGrid,
+    ]
+  );
 
   const shuffleGameBoard = useCallback((): void => {
     const numFireTiles = 2 + Math.round(Math.random() * Math.floor(level / 4));
@@ -514,8 +559,20 @@ const GameProvider = ({ children }: GameProviderProps) => {
       return grid;
     });
 
-    updateGameGridState();
-  }, [gameSettings, level, setGameGrid, updateGameGridState]);
+    updateGameGridState({
+      totalScore,
+      bonusWord,
+      longestWord,
+    });
+  }, [
+    bonusWord,
+    gameSettings,
+    level,
+    longestWord,
+    setGameGrid,
+    totalScore,
+    updateGameGridState,
+  ]);
 
   const resetGame = useCallback((): void => {
     setSelectedLetters([]);
@@ -530,35 +587,69 @@ const GameProvider = ({ children }: GameProviderProps) => {
   }, [createNewGameGrid, setGameGrid]);
 
   const submitHighscore = async () => {
-    if (!auth?.currentUser) return;
+    if (!user) return;
 
     setSentHighscore(true);
 
-    setDoc(doc(firestore, "highscores", auth.currentUser.uid), {
-      totalScore,
-      displayName: auth.currentUser.displayName
-        ? auth.currentUser.displayName.split(" ")[0]
-        : "",
-      longestWord,
-      id: auth.currentUser.uid,
-    })
+    setDoc(
+      doc(firestore, "highscores", user.uid),
+      {
+        totalScore,
+        displayName: user.displayName ? user.displayName.split(" ")[0] : "",
+        longestWord,
+        id: user.uid,
+      },
+      { merge: true }
+    )
       .then(() =>
         showToast({
-          ...toast,
           message: "Highscore submitted!",
-          visible: true,
           type: ToastTypes.SUCCESS,
         })
       )
       .catch(() =>
         showToast({
-          ...toast,
           message: "Something went wrong, try again later.",
-          visible: true,
           type: ToastTypes.ERROR,
         })
       );
   };
+
+  const submitWord = useCallback((): void => {
+    const _score = wordScore ?? 0;
+    const newScore = totalScore + _score;
+
+    let newBonusWord = bonusWord;
+    let newLongestWord = longestWord;
+
+    if (selectedLettersString.length > longestWord.length) {
+      newLongestWord = selectedLettersString;
+    }
+
+    if (selectedLettersString.toLowerCase() === bonusWord) {
+      const newBonusWordLength =
+        baseBonusWordLength + Math.round(Math.random() * Math.floor(level / 5));
+      newBonusWord = wordLib.random(newBonusWordLength);
+    }
+
+    setTotalScore(newScore);
+    setLongestWord(newLongestWord);
+    setBonusWord(newBonusWord);
+
+    updateGameGridState({
+      totalScore: newScore,
+      longestWord: newLongestWord,
+      bonusWord: newBonusWord,
+    });
+  }, [
+    wordScore,
+    totalScore,
+    longestWord,
+    selectedLettersString,
+    bonusWord,
+    updateGameGridState,
+    level,
+  ]);
 
   return (
     <GameContext.Provider
@@ -575,11 +666,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
         selectedLetters,
         gameGrid,
         gameSettings,
-        toast,
         resetGame,
         submitWord,
         submitHighscore,
-        showToast,
         selectLetter,
         shuffleGameBoard,
       }}

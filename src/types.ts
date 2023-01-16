@@ -10,12 +10,6 @@ export enum Page {
   GAME = 2,
 }
 
-export enum ToastTypes {
-  SUCCESS = 1,
-  WARNING = 2,
-  ERROR = 3,
-}
-
 export enum HighscoreSortingTypes {
   SCORE = 1,
   LONGEST_WORD = 2,
@@ -52,13 +46,6 @@ export type PageProps = {
   title: string;
 };
 
-export type ToastProps = {
-  message: string;
-  duration: number;
-  type: ToastTypes;
-  visible: boolean;
-};
-
 export type GameSettingsType = {
   numCellsX: number;
   numCellsY: number;
@@ -84,6 +71,4 @@ export type GameContextType = {
   resetGame: () => void;
   submitWord: () => void;
   submitHighscore: () => void;
-  showToast: (props: ToastProps) => void;
-  toast: ToastProps;
 };

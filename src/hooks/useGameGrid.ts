@@ -37,6 +37,17 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
     [consonantRatio, numCellsX, numCellsY]
   );
 
+  const loadGameGrid = useCallback(
+    (savedGrid: any): GameCellData[][] => {
+      return Array.from({ length: numCellsX }, (_, x) =>
+        Array.from({ length: numCellsY }, (_, y) => ({
+          ...savedGrid[`${x}-${y}`],
+        }))
+      );
+    },
+    [numCellsX, numCellsY]
+  );
+
   const getGridCell = (x: number, y: number): GameCellData => {
     return gameGrid?.[x]?.[y];
   };
@@ -48,5 +59,12 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
     });
   };
 
-  return { gameGrid, setGameGrid, getGridCell, setGridCell, createNewGameGrid };
+  return {
+    gameGrid,
+    setGameGrid,
+    getGridCell,
+    setGridCell,
+    createNewGameGrid,
+    loadGameGrid,
+  };
 };
