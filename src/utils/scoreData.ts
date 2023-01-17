@@ -56,11 +56,11 @@ export const fireTileChance: any = {
   3: 0.12,
   4: 0.14,
   5: 0.16,
-  6: 0.18,
-  7: 0.19,
-  8: 0.21,
-  9: 0.23,
-  10: 0.25,
+  6: 0.17,
+  7: 0.18,
+  8: 0.19,
+  9: 0.2,
+  10: 0.22,
 };
 
 export const levelToLetterRarityChance: any = {

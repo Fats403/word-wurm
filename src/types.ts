@@ -11,8 +11,8 @@ export enum Page {
 }
 
 export enum HighscoreSortingTypes {
-  SCORE = 1,
-  LONGEST_WORD = 2,
+  SCORE = "SCORE",
+  LONGEST_WORD = "LONGEST_WORD",
 }
 
 export interface GameCellData {
@@ -37,6 +37,13 @@ export interface LetterCellProps {
   size: number;
 }
 
+export interface HighScoreProps {
+  id: string;
+  displayName: string | undefined;
+  longestWord?: string;
+  totalScore?: number;
+}
+
 export type GameProviderProps = {
   children?: JSX.Element | JSX.Element[];
 };
@@ -55,7 +62,6 @@ export type GameSettingsType = {
 
 export type GameContextType = {
   gameGrid: GameCellData[][];
-  currentHighscore: any;
   wordScore: number | null;
   longestWord: string;
   bonusWord: string;
@@ -65,10 +71,8 @@ export type GameContextType = {
   selectedLetters: GameCellData[];
   gameSettings: GameSettingsType;
   isGameOver: boolean;
-  sentHighscore: boolean;
   selectLetter: (data: GameCellData) => void;
   shuffleGameBoard: () => void;
   resetGame: () => void;
   submitWord: () => void;
-  submitHighscore: () => void;
 };

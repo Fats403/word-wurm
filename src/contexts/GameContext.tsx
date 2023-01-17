@@ -35,10 +35,9 @@ import {
   lettersData,
 } from "../utils/lettersData";
 import shuffle from "../utils/shuffle";
-import { auth, firestore } from "../services/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { firestore } from "../services/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import randomNumber from "../utils/randomNumber";
-import { ToastContext, ToastContextState, ToastTypes } from "./ToastContext";
 import { FirebaseContext, FirebaseContextState } from "./FirebaseContext";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
@@ -51,23 +50,19 @@ const GameProvider = ({ children }: GameProviderProps) => {
     consonantRatio: 0.68,
   });
 
-  const { showToast } = useContext(ToastContext) as ToastContextState;
   const { user, savedGameState, clearGameState } = useContext(
     FirebaseContext
   ) as FirebaseContextState;
 
-  const [currentHighscore, setCurrentHighscore] = useState<any>(null);
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
   const [totalScore, setTotalScore] = useState<number>(0);
   const [longestWord, setLongestWord] = useState<string>("");
-  const [bestWordScore, setBestWordScore] = useState<number>(0);
 
   const [bonusWordMaxLength, setBonusWordMaxLength] =
     useState<number>(baseBonusWordLength);
   const [bonusWord, setBonusWord] = useState<string>("");
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
-  const [sentHighscore, setSentHighscore] = useState<boolean>(false);
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
@@ -82,19 +77,6 @@ const GameProvider = ({ children }: GameProviderProps) => {
     createNewGameGrid,
     loadGameGrid,
   } = useGameGrid(gameSettings);
-
-  const retrieveCurrentHighScore = useCallback(async (): Promise<void> => {
-    if (!auth?.currentUser) return;
-    const docRef = doc(firestore, "highscores", auth.currentUser.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      console.log(docSnap.data());
-      setCurrentHighscore(docSnap.data());
-    }
-
-    setCurrentHighscore(null);
-  }, [setCurrentHighscore]);
 
   const initializeGameState = useCallback(() => {
     savedGameState?.longestWord && setLongestWord(savedGameState.longestWord);
@@ -583,37 +565,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     setGameGrid(createNewGameGrid());
     setIsGameOver(false);
-    setSentHighscore(false);
   }, [createNewGameGrid, setGameGrid]);
-
-  const submitHighscore = async () => {
-    if (!user) return;
-
-    setSentHighscore(true);
-
-    setDoc(
-      doc(firestore, "highscores", user.uid),
-      {
-        totalScore,
-        displayName: user.displayName ? user.displayName.split(" ")[0] : "",
-        longestWord,
-        id: user.uid,
-      },
-      { merge: true }
-    )
-      .then(() =>
-        showToast({
-          message: "Highscore submitted!",
-          type: ToastTypes.SUCCESS,
-        })
-      )
-      .catch(() =>
-        showToast({
-          message: "Something went wrong, try again later.",
-          type: ToastTypes.ERROR,
-        })
-      );
-  };
 
   const submitWord = useCallback((): void => {
     const _score = wordScore ?? 0;
@@ -656,8 +608,6 @@ const GameProvider = ({ children }: GameProviderProps) => {
       value={{
         level,
         bonusWord,
-        currentHighscore,
-        sentHighscore,
         isGameOver,
         totalScore,
         longestWord,
@@ -668,7 +618,6 @@ const GameProvider = ({ children }: GameProviderProps) => {
         gameSettings,
         resetGame,
         submitWord,
-        submitHighscore,
         selectLetter,
         shuffleGameBoard,
       }}

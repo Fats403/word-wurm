@@ -12,7 +12,9 @@ import { useSortedHighscores } from "../src/hooks/useSortedHighscores";
 const Highscores: NextPage = () => {
   const router = useRouter();
   const [highscores, setHighscores] = useState<any[]>([]);
-  const [sortBy, setSortBy] = useState<number>(HighscoreSortingTypes.SCORE);
+  const [sortBy, setSortBy] = useState<HighscoreSortingTypes>(
+    HighscoreSortingTypes.SCORE
+  );
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -31,8 +33,8 @@ const Highscores: NextPage = () => {
     return () => unsubscribe();
   }, []);
 
-  const { sortedByLongestWord, sortedByScore } =
-    useSortedHighscores(highscores);
+  const sortedHighscores = useSortedHighscores(highscores);
+  const highscoreData = sortedHighscores?.[sortBy];
 
   return (
     <Page title="Highscores">
@@ -40,7 +42,7 @@ const Highscores: NextPage = () => {
         <div className="flex flex-row justify-between items-center mb-4">
           <p className="font-bold text-black text-xl mb-2">Highscores</p>
           <select
-            onChange={(e) => setSortBy(Number(e.target.value))}
+            onChange={(e) => setSortBy(e.target.value as HighscoreSortingTypes)}
             id=" leaderboard"
             className="max-w-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2.5 py-1"
           >
@@ -58,16 +60,8 @@ const Highscores: NextPage = () => {
             </div>
           ) : (
             <HighscoreList
-              highscores={
-                sortBy === HighscoreSortingTypes.SCORE
-                  ? sortedByScore
-                  : sortedByLongestWord
-              }
-              propertyName={
-                sortBy === HighscoreSortingTypes.SCORE
-                  ? "totalScore"
-                  : "longestWord"
-              }
+              highscores={highscoreData.highscores}
+              property={highscoreData.property}
             />
           )}
         </ul>

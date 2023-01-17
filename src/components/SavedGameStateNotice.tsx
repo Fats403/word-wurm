@@ -13,7 +13,7 @@ const SavedGameStateNotice = ({ setContinueGame }: any): JSX.Element => {
       <div className="relative w-80 p-4 shadow-black bg-gray-700 shadow-lg rounded-xl justify-center items-center flex flex-col">
         <p className="font-bold text-white text-center text-md mb-6 select-none">
           {
-            "You have a previous game that was wasn't completed. Do you want to resume it?"
+            "You have a previous game that was not completed. Do you want to continue it?"
           }
         </p>
         <button
@@ -21,14 +21,17 @@ const SavedGameStateNotice = ({ setContinueGame }: any): JSX.Element => {
           type="button"
           className="select-none flex justify-center text-white transition-all duration-200 hover:text-black border-2 border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
         >
-          Continue
+          Yes, continue.
         </button>
+        <p className="font-bold text-white text-center text-md my-4 select-none">
+          {"- OR -"}
+        </p>
         <button
           onClick={() => clearGameState()}
           type="button"
-          className="select-none flex mt-4 justify-center text-white transition-all duration-200 hover:text-black border-2 border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center  disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
+          className="select-none flex mb-4 justify-center text-white transition-all duration-200 hover:text-black border-2 border-white hover:bg-white font-medium rounded-lg text-sm px-5 py-2.5 text-center  disabled:text-gray-400 disabled:bg-white disabled:border-gray-300"
         >
-          New Game
+          No, new game.
         </button>
       </div>
     </div>

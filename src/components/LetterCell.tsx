@@ -1,27 +1,32 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
 import { CellTypes, GameContextType, LetterCellProps } from "../types";
 import { lettersData } from "../utils/lettersData";
+import { motion } from "framer-motion";
 
 const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
   const { value, x, y, selected, type } = data;
+  const { selectLetter } = useContext(GameContext) as GameContextType;
 
   const letterTier: number = lettersData[value]?.tier || 1;
   const tierString: string = Array.from({ length: letterTier }, () => "•").join(
     ""
   );
 
-  const { selectLetter } = useContext(GameContext) as GameContextType;
+  const targetY = useMemo(
+    () => y * size + (x % 2 == 1 ? size / 2 : 0) + (y === 0 ? 0 : y * -1),
+    [size, x, y]
+  );
 
   return (
-    <div
+    <motion.div
       onClick={() => selectLetter(data)}
       style={{
         width: `${size}px`,
         height: `${size}px`,
         left: x * size + (x === 0 ? 0 : x * -1),
-        top: y * size + (x % 2 == 1 ? size / 2 : 0) + (y === 0 ? 0 : y * -1), // vertical offset on odd rows
+        top: targetY,
       }}
       className={
         selected
@@ -47,7 +52,7 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
           <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-blue-600 animate-pulse opacity-40"></div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

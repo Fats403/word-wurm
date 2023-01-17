@@ -6,11 +6,16 @@ const top3Colors: any = {
   2: "#cd7f32",
 };
 
-const HighscoreList = ({ highscores, propertyName }: any): JSX.Element => {
+const HighscoreList = ({ highscores, property }: any): JSX.Element => {
+  const properties = property.split(".");
   return (
     <div className="flex flex-col overflow-auto h-80">
       {highscores?.map((data: any, index: number) => {
         if (index >= 10) return;
+
+        const nestedProperty = data[properties[0]][properties[1]];
+        const property = data[properties[0]];
+
         return (
           <li key={index} className="flex items-center my-2 space-x-2 ">
             <div
@@ -30,11 +35,10 @@ const HighscoreList = ({ highscores, propertyName }: any): JSX.Element => {
               <span className="ml-2 text-md font-bold text-gray-900">
                 {data.displayName}
               </span>
-
               <span className="ml-2 text-sm font-medium text-gray-500 tracking-wide">
-                {propertyName === "totalScore"
-                  ? data[propertyName].toLocaleString("en-US")
-                  : data[propertyName]}
+                {properties.length === 2
+                  ? nestedProperty.toLocaleString("en-US")
+                  : property.toLocaleString("en-US")}
               </span>
             </div>
           </li>

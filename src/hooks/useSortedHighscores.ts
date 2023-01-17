@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { HighscoreSortingTypes } from "../types";
 
 export const useSortedHighscores = (highscores: any) => {
   const [sortedByScore, setSortedByScore] = useState<any[]>([]);
@@ -20,5 +21,19 @@ export const useSortedHighscores = (highscores: any) => {
     setSortedByLongestWord(longestWordSort);
   }, [highscores]);
 
-  return { sortedByScore, sortedByLongestWord };
+  const sortedHighscores = useMemo(
+    () => ({
+      [HighscoreSortingTypes.SCORE]: {
+        property: "totalScore",
+        highscores: sortedByScore,
+      },
+      [HighscoreSortingTypes.LONGEST_WORD]: {
+        property: "longestWord",
+        highscores: sortedByLongestWord,
+      },
+    }),
+    [sortedByLongestWord, sortedByScore]
+  );
+
+  return sortedHighscores;
 };
