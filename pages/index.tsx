@@ -8,7 +8,6 @@ import {
   FirebaseContext,
   FirebaseContextState,
 } from "../src/contexts/FirebaseContext";
-import Background from "../src/components/Background/Background";
 
 const Login: NextPage = () => {
   const router = useRouter();
