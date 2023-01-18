@@ -364,13 +364,23 @@ const GameProvider = ({ children }: GameProviderProps) => {
               !selectedLetters.some((l) => l.x === cell.x && l.y === cell.y)
             ) {
               if (
+                // no cell above
                 !cellAbove ||
+                // this cell is not fire, cell above is not fire
                 (cell.type !== CellTypes.FIRE &&
                   cellAbove.type !== CellTypes.FIRE) ||
+                // this cell is fire and the cell above is fire
                 (cell.type === CellTypes.FIRE &&
                   cellAbove.type === CellTypes.FIRE) ||
+                // this cell is fire and the cell above it not fire
                 (cell.type === CellTypes.FIRE &&
-                  cellAbove.type !== CellTypes.FIRE)
+                  cellAbove.type !== CellTypes.FIRE) ||
+                // this cell is NOT fire and the cell above is in the selected letters and is fire
+                (cell.type !== CellTypes.FIRE &&
+                  cellAbove.type === CellTypes.FIRE &&
+                  selectedLetters.some(
+                    (l) => l.x === cellAbove.x && l.y === cellAbove.y
+                  ))
               ) {
                 cell.y = yIndex--;
                 newCol.push(cell);

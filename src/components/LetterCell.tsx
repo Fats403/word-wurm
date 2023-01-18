@@ -37,8 +37,8 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
       <div className="flex relative flex-col justify-center items-center h-full w-full">
         <span className="z-10 font-bold select-none">{value}</span>
         <span
-          style={{ right: 1.5, bottom: -6 }}
-          className="absolute select-none z-10"
+          style={{ right: 1.5, bottom: -10 }}
+          className="absolute select-none z-10 text-lg"
         >
           {tierString}
         </span>

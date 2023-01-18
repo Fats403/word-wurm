@@ -51,6 +51,7 @@ export type GameProviderProps = {
 export type PageProps = {
   children?: JSX.Element | JSX.Element[];
   title: string;
+  animatedBg?: boolean;
 };
 
 export type GameSettingsType = {
