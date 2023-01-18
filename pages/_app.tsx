@@ -14,11 +14,12 @@ function MyApp({ Component, pageProps }: AppProps) {
     <TourProvider steps={[]}>
       <ToastProvider>
         <FirebaseProvider>
+          {/*
           <style jsx global>{`
             html {
               font-family: ${exo.style.fontFamily};
             }
-          `}</style>
+          `}</style>*/}
           <Background />
           <Component {...pageProps} />
         </FirebaseProvider>
