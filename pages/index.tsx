@@ -107,6 +107,4 @@ const WordWurmTitle = () => (
   </div>
 );
 
-const TitleLetter = () => {};
-
 export default Login;
