@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
 import { CellTypes, GameContextType, LetterCellProps } from "../types";
@@ -37,8 +37,8 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
       <div className="flex relative flex-col justify-center items-center h-full w-full">
         <span className="z-10 font-bold select-none">{value}</span>
         <span
-          style={{ right: 1.5, bottom: -4 }}
-          className="absolute select-none z-10 text-sm"
+          style={{ right: 1.5, bottom: -9.5 }}
+          className="absolute select-none z-10 text-lg"
         >
           {tierString}
         </span>

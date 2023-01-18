@@ -58,7 +58,7 @@ const Game: NextPage = () => {
   }
 
   return (
-    <Page title="Word Worm">
+    <Page title="Word Worm" animatedBg={false}>
       <GameProvider>
         <GameGUI />
         <GameGrid />

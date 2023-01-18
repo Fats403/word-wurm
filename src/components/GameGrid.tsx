@@ -86,7 +86,7 @@ const GameGrid = (): JSX.Element => {
           </div>
           <div className="flex flex-row text-sm select-none">
             <p className="select-none font-medium mr-1">Score:</p>
-            {totalScore}
+            {totalScore.toLocaleString("en-us")}
           </div>
         </div>
         <button

@@ -23,15 +23,15 @@ export const maxBonusCellLength = 8;
 export const bonusCellSpawnChance: any = {
   5: {
     type: CellTypes.EMERALD,
-    chance: 0.25,
+    chance: 0.4,
   },
   6: {
     type: CellTypes.EMERALD,
-    chance: 0.55,
+    chance: 0.8,
   },
   7: {
     type: CellTypes.SAPHIRE,
-    chance: 0.75,
+    chance: 1,
   },
   8: {
     type: CellTypes.SAPHIRE,
@@ -41,26 +41,26 @@ export const bonusCellSpawnChance: any = {
 
 export const lengthMultipliers: any = {
   3: 1.0,
-  4: 1.2,
-  5: 1.75,
-  6: 2.0,
-  7: 2.25,
-  8: 2.5,
-  9: 3.0,
-  10: 3.5,
+  4: 1.25,
+  5: 1.5,
+  6: 2,
+  7: 2.5,
+  8: 3,
+  9: 3.5,
+  10: 4,
 };
 
 export const fireTileChance: any = {
   1: 0.0,
-  2: 0.1,
-  3: 0.12,
-  4: 0.13,
-  5: 0.14,
-  6: 0.15,
-  7: 0.16,
-  8: 0.17,
-  9: 0.18,
-  10: 0.2,
+  2: 0.05,
+  3: 0.7,
+  4: 0.9,
+  5: 0.1,
+  6: 0.12,
+  7: 0.13,
+  8: 0.14,
+  9: 0.15,
+  10: 0.16,
 };
 
 export const levelToLetterRarityChance: any = {
@@ -80,38 +80,38 @@ export const levelToLetterRarityChance: any = {
     [LETTER_RARITY_HIGH]: 0.1,
   },
   4: {
-    [LETTER_RARITY_LOW]: 0.6,
+    [LETTER_RARITY_LOW]: 0.62,
     [LETTER_RARITY_MID]: 0.28,
     [LETTER_RARITY_HIGH]: 0.1,
   },
   5: {
-    [LETTER_RARITY_LOW]: 0.56,
-    [LETTER_RARITY_MID]: 0.31,
-    [LETTER_RARITY_HIGH]: 0.11,
+    [LETTER_RARITY_LOW]: 0.6,
+    [LETTER_RARITY_MID]: 0.3,
+    [LETTER_RARITY_HIGH]: 0.1,
   },
   6: {
-    [LETTER_RARITY_LOW]: 0.55,
-    [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.12,
+    [LETTER_RARITY_LOW]: 0.58,
+    [LETTER_RARITY_MID]: 0.32,
+    [LETTER_RARITY_HIGH]: 0.1,
   },
   7: {
-    [LETTER_RARITY_LOW]: 0.54,
+    [LETTER_RARITY_LOW]: 0.56,
     [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.13,
+    [LETTER_RARITY_HIGH]: 0.11,
   },
   8: {
-    [LETTER_RARITY_LOW]: 0.53,
-    [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.14,
+    [LETTER_RARITY_LOW]: 0.54,
+    [LETTER_RARITY_MID]: 0.34,
+    [LETTER_RARITY_HIGH]: 0.12,
   },
   9: {
-    [LETTER_RARITY_LOW]: 0.5,
+    [LETTER_RARITY_LOW]: 0.52,
     [LETTER_RARITY_MID]: 0.35,
-    [LETTER_RARITY_HIGH]: 0.15,
+    [LETTER_RARITY_HIGH]: 0.13,
   },
   10: {
-    [LETTER_RARITY_LOW]: 0.5,
-    [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.17,
+    [LETTER_RARITY_LOW]: 0.51,
+    [LETTER_RARITY_MID]: 0.35,
+    [LETTER_RARITY_HIGH]: 0.14,
   },
 };

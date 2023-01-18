@@ -47,7 +47,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
     numCellsX: 7,
     numCellsY: 7,
     cellSize: 50,
-    consonantRatio: 0.68,
+    consonantRatio: 0.67,
   });
 
   const { user, savedGameState, clearGameState } = useContext(
