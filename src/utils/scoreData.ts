@@ -53,9 +53,9 @@ export const lengthMultipliers: any = {
 export const fireTileChance: any = {
   1: 0.0,
   2: 0.05,
-  3: 0.7,
-  4: 0.9,
-  5: 0.1,
+  3: 0.07,
+  4: 0.09,
+  5: 0.11,
   6: 0.12,
   7: 0.13,
   8: 0.14,
