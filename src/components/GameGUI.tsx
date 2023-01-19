@@ -8,9 +8,9 @@ const GameGUI = (): JSX.Element => {
   return (
     <div
       style={{ width: 384 }}
-      className="p-2 h-14 w-full bg-white shadow-lg border border-gray-500 rounded-xl mb-2 flex flex-row"
+      className="p-2 h-14 w-full bg-black bg-opacity-20 shadow-lg border border-white border-2 rounded-xl mb-2 flex flex-row text-white"
     >
-      <div className="w-1/2 h-full border-r-2 border-gray-400 flex items-center justify-center flex-col">
+      <div className="w-1/2 h-full border-r-2 border-white flex items-center justify-center flex-col">
         <span className="font-bold text-sm select-none">Longest Word</span>
         <span className="text-xs select-none">
           {longestWord.toUpperCase() || "-"}

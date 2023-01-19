@@ -143,7 +143,7 @@ const GameOver = (): JSX.Element => {
         left: "49.25%",
         transform: "translate(-50%,-50%)",
       }}
-      className="relative w-80 h-80 p-4 shadow-black bg-gray-700 shadow-lg rounded-xl justify-center items-center flex flex-col"
+      className="relative w-80 h-80 p-4 shadow-black bg-black border-2 border-white bg-opacity-90 shadow-lg rounded-xl justify-center items-center flex flex-col"
     >
       <p className="font-bold text-white text-center text-5xl mb-8 select-none">
         Game Over

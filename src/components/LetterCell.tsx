@@ -30,8 +30,8 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
       }}
       className={
         selected
-          ? "flex cursor-pointer absolute border border-solid border-gray-900 transition duration-200 ease-in-out bg-amber-400"
-          : "flex cursor-pointer absolute border border-solid border-gray-900 transition duration-200 ease-in-out bg-white hover:bg-amber-200"
+          ? "flex cursor-pointer rounded-lg absolute border border-solid border-gray-900 transition duration-200 ease-in-out bg-amber-400"
+          : "flex cursor-pointer rounded-lg absolute border border-solid border-gray-900 transition duration-200 ease-in-out bg-white hover:bg-amber-200"
       }
     >
       <div className="flex relative flex-col justify-center items-center h-full w-full">
@@ -43,13 +43,13 @@ const LetterCell = ({ data, size }: LetterCellProps): JSX.Element => {
           {tierString}
         </span>
         {type === CellTypes.FIRE && (
-          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-red-600 animate-pulse opacity-40"></div>
+          <div className="z-0 absolute w-full h-full rounded-lg absolute bg-gradient-radial from-white to-red-600 animate-pulse opacity-40"></div>
         )}
         {type === CellTypes.EMERALD && (
-          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-green-600 animate-pulse opacity-40"></div>
+          <div className="z-0 absolute w-full h-full rounded-lg absolute bg-gradient-radial from-white to-green-600 animate-pulse opacity-40"></div>
         )}
         {type === CellTypes.SAPHIRE && (
-          <div className="z-0 absolute w-full h-full absolute bg-gradient-radial from-white to-blue-600 animate-pulse opacity-40"></div>
+          <div className="z-0 absolute w-full h-full rounded-lg absolute bg-gradient-radial from-white to-blue-600 animate-pulse opacity-40"></div>
         )}
       </div>
     </motion.div>

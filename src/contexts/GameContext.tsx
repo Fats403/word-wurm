@@ -447,7 +447,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
               // NOTE: deduct 5 - 10 percent chance off the base chance for four letter words
               const bonusChance =
                 selectedLettersString.length === 4
-                  ? randomNumber(0.05, 0.1)
+                  ? randomNumber(0.04, 0.08)
                   : 0;
 
               const random = Math.random();
