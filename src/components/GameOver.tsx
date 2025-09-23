@@ -195,7 +195,7 @@ const GameOver = (): JSX.Element => {
             highscoreSubmitDisabled &&
             currentHighscoreData && (
               <p className="text-xs text-center text-white mt-1 select-none">
-                You didn't beat your previous score or longest word.
+                You didn&apos;t beat your previous score or longest word.
               </p>
             )}
         </div>
