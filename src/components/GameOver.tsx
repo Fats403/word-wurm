@@ -119,16 +119,21 @@ const GameOver = (): JSX.Element => {
   };
 
   const retrieveCurrentHighScore = useCallback(async () => {
-    if (!user) return;
-
-    const docRef = doc(firestore, "highscores", user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setCurrentHighscoreData(docSnap.data() as HighScoreProps);
+    if (!user) {
+      setIsLoadingHighScoreData(false);
+      return;
     }
 
-    setIsLoadingHighScoreData(false);
+    try {
+      const docRef = doc(firestore, "highscores", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setCurrentHighscoreData(docSnap.data() as HighScoreProps);
+      }
+    } finally {
+      setIsLoadingHighScoreData(false);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -184,6 +189,15 @@ const GameOver = (): JSX.Element => {
               to submit your highscore.
             </p>
           )}
+          {user &&
+            !sentHighscore &&
+            totalScore > 0 &&
+            highscoreSubmitDisabled &&
+            currentHighscoreData && (
+              <p className="text-xs text-center text-white mt-1 select-none">
+                You didn't beat your previous score or longest word.
+              </p>
+            )}
         </div>
       ) : (
         <Loader />
