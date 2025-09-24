@@ -148,6 +148,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
       if (isGameOver || isAnimating) return;
 
       if (!data.selected) {
+        // Cap selection length to 15 letters
+        if (selectedLetters.length >= 15) return;
         const selectionIsNeighbour = lastSelectedNeighbours?.some(
           (cell) => cell.x === data.x && cell.y === data.y
         );
@@ -169,6 +171,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
         }
 
         if (!lastSelectedNeighbours || selectionIsNeighbour) {
+          if (selectedLetters.length >= 15) return;
           setSelectedLetters((letters) => [...letters, cellData]);
           setGridCell(data.x, data.y, cellData);
         }

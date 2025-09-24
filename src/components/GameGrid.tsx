@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
 import { GameCellData, GameContextType } from "../types";
 import LetterCell from "./LetterCell";
 import GameOver from "./GameOver";
+import LevelUpModal from "./LevelUpModal";
+import { levelTitles } from "../utils/scoreData";
 
 const GameGrid = (): JSX.Element => {
   const {
@@ -20,12 +22,25 @@ const GameGrid = (): JSX.Element => {
     gameSettings: { numCellsX, numCellsY, cellSize },
   } = useContext(GameContext) as GameContextType;
 
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const prevLevelRef = useRef(level);
+
+  useEffect(() => {
+    if (level > prevLevelRef.current) {
+      setShowLevelUp(true);
+    }
+    prevLevelRef.current = level;
+  }, [level]);
+
+  const title = useMemo(() => levelTitles[level] || "Word Wurm", [level]);
+
   const gridWidth: number = numCellsX * cellSize;
   const gridHeight: number = numCellsY * cellSize + cellSize / 2 - numCellsY;
 
-  const submitDisabled: boolean = !isValidWord || isGameOver || isAnimating;
+  const submitDisabled: boolean =
+    !isValidWord || isGameOver || isAnimating || showLevelUp;
   const shuffleDisabled: boolean =
-    Boolean(selectedLetters.length) || isGameOver || isAnimating;
+    Boolean(selectedLetters.length) || isGameOver || isAnimating || showLevelUp;
 
   return (
     <div className="p-4 bg-white shadow-lg border bg-black bg-opacity-20 border-2 border-white rounded-xl">
@@ -43,6 +58,10 @@ const GameGrid = (): JSX.Element => {
               .map((l) => l.value)
               .join("")
               .toUpperCase() || "-"}
+          </div>
+          <div className="flex flex-row text-sm select-none text-white">
+            <p className="select-none font-medium mr-2 text-sm">Title:</p>
+            {title}
           </div>
         </div>
         <button
@@ -78,6 +97,15 @@ const GameGrid = (): JSX.Element => {
         })}
 
         {isGameOver && <GameOver />}
+        {showLevelUp && (
+          <div className="absolute inset-0 flex items-center justify-center z-30">
+            <LevelUpModal
+              level={level}
+              title={title}
+              onClose={() => setShowLevelUp(false)}
+            />
+          </div>
+        )}
       </div>
       <div className="flex flex-row justify-between items-end">
         <div className="flex flex-col text-white">

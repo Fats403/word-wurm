@@ -272,7 +272,7 @@ export const getTargetVowelRatio = (level: number): number => {
 
 // Fun level titles – can tweak per preset later if desired
 export const levelTitles: Record<number, string> = {
-  1: "Novice Bookworm",
+  1: "Novice Bookwurm",
   2: "Letter Forager",
   3: "Word Dabbler",
   4: "Syllable Slinger",
@@ -286,5 +286,5 @@ export const levelTitles: Record<number, string> = {
   12: "Semantic Scholar",
   13: "Word Warden",
   14: "Grand Lexicographer",
-  15: "Master Bookwyrm",
+  15: "Master Bookwurm",
 };
