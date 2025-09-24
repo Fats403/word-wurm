@@ -1,148 +1,290 @@
 import { CellTypes } from "../types";
 
-export const maxScoreMultiplier = 3.5;
-export const maxLetterMultiplierLength = 10;
+// --------------------
+// Tuning: presets + builders
+// --------------------
 
-export const baseEmeraldValue = 0.5;
-export const baseSaphireValue = 1.75;
+export type TuningPreset = {
+  // Levels
+  maxLevel: number;
+  levelBaseScore: number; // score to reach level 2
+  levelGrowthRate: number; // multiplier per level (e.g. 1.35)
 
-export const baseBonusWordLength = 3;
-export const bonusWordMultiplier = 3.5;
+  // Word length multipliers
+  maxLetterMultiplierLength: number;
+  lengthMultiplierStart: number; // multiplier at length 3
+  lengthMultiplierGrowth: number; // per additional letter growth
+  maxScoreMultiplier: number; // hard cap
+
+  // Bonus word
+  baseBonusWordLength: number;
+  bonusWordMultiplier: number;
+
+  // Bonus tiles
+  maxBonusCellLength: number;
+  emeraldSpawnAt: number; // word length at which EMERALD may spawn
+  saphireSpawnAt: number; // word length at which SAPHIRE may spawn
+  emeraldSpawnChanceAtThreshold: number; // chance at emerald threshold
+  saphireSpawnChanceAtThreshold: number; // chance at saphire threshold
+
+  // Fire tiles
+  fireStartChance: number; // at level 1
+  fireMaxChance: number; // at max level
+
+  // Letter rarity trend (low -> mid -> high) across levels
+  rarityLowAtL1: number;
+  rarityMidAtL1: number;
+  rarityHighAtL1: number;
+  rarityLowAtMax: number;
+  rarityMidAtMax: number;
+  rarityHighAtMax: number;
+
+  // Bonus cell multipliers
+  baseEmeraldValue: number;
+  baseSaphireValue: number;
+
+  // Vowel ratio target across levels (for dynamic spawning)
+  vowelTargetAtL1: number;
+  vowelTargetAtMax: number;
+};
+
+export const presets: Record<string, TuningPreset> = {
+  easy: {
+    maxLevel: 15,
+    levelBaseScore: 2500,
+    levelGrowthRate: 1.28,
+
+    maxLetterMultiplierLength: 10,
+    lengthMultiplierStart: 1.0,
+    lengthMultiplierGrowth: 0.35,
+    maxScoreMultiplier: 3.5,
+
+    baseBonusWordLength: 3,
+    bonusWordMultiplier: 3.0,
+
+    maxBonusCellLength: 8,
+    emeraldSpawnAt: 5,
+    saphireSpawnAt: 7,
+    emeraldSpawnChanceAtThreshold: 0.25,
+    saphireSpawnChanceAtThreshold: 0.35,
+
+    fireStartChance: 0.0,
+    fireMaxChance: 0.18,
+
+    rarityLowAtL1: 0.72,
+    rarityMidAtL1: 0.24,
+    rarityHighAtL1: 0.04,
+    rarityLowAtMax: 0.52,
+    rarityMidAtMax: 0.36,
+    rarityHighAtMax: 0.12,
+
+    baseEmeraldValue: 0.4,
+    baseSaphireValue: 1.25,
+    vowelTargetAtL1: 0.36,
+    vowelTargetAtMax: 0.32,
+  },
+  normal: {
+    maxLevel: 15,
+    levelBaseScore: 4000,
+    levelGrowthRate: 1.42,
+
+    maxLetterMultiplierLength: 10,
+    lengthMultiplierStart: 1.0,
+    lengthMultiplierGrowth: 0.4,
+    maxScoreMultiplier: 3.75,
+
+    baseBonusWordLength: 3,
+    bonusWordMultiplier: 3.5,
+
+    maxBonusCellLength: 8,
+    emeraldSpawnAt: 5,
+    saphireSpawnAt: 7,
+    emeraldSpawnChanceAtThreshold: 0.4,
+    saphireSpawnChanceAtThreshold: 0.45,
+
+    fireStartChance: 0.0,
+    fireMaxChance: 0.22,
+
+    rarityLowAtL1: 0.7,
+    rarityMidAtL1: 0.25,
+    rarityHighAtL1: 0.05,
+    rarityLowAtMax: 0.45,
+    rarityMidAtMax: 0.39,
+    rarityHighAtMax: 0.16,
+
+    baseEmeraldValue: 0.5,
+    baseSaphireValue: 1.75,
+    vowelTargetAtL1: 0.34,
+    vowelTargetAtMax: 0.3,
+  },
+  hard: {
+    maxLevel: 15,
+    levelBaseScore: 1800,
+    levelGrowthRate: 1.42,
+
+    maxLetterMultiplierLength: 10,
+    lengthMultiplierStart: 1.0,
+    lengthMultiplierGrowth: 0.45,
+    maxScoreMultiplier: 4.0,
+
+    baseBonusWordLength: 3,
+    bonusWordMultiplier: 4.0,
+
+    maxBonusCellLength: 8,
+    emeraldSpawnAt: 5,
+    saphireSpawnAt: 7,
+    emeraldSpawnChanceAtThreshold: 0.35,
+    saphireSpawnChanceAtThreshold: 0.55,
+
+    fireStartChance: 0.02,
+    fireMaxChance: 0.27,
+
+    rarityLowAtL1: 0.68,
+    rarityMidAtL1: 0.26,
+    rarityHighAtL1: 0.06,
+    rarityLowAtMax: 0.4,
+    rarityMidAtMax: 0.43,
+    rarityHighAtMax: 0.17,
+
+    baseEmeraldValue: 0.6,
+    baseSaphireValue: 2.0,
+    vowelTargetAtL1: 0.32,
+    vowelTargetAtMax: 0.28,
+  },
+};
+
+export const ACTIVE_TUNING_KEY = "normal"; // change to "easy" | "normal" | "hard" to toggle defaults
+export const ACTIVE_TUNING: TuningPreset = presets[ACTIVE_TUNING_KEY];
+
+// --------------------
+// Derived builders
+// --------------------
 
 export const LETTER_RARITY_LOW = 3;
 export const LETTER_RARITY_MID = 2;
 export const LETTER_RARITY_HIGH = 1;
 
-export const maxLevel = 15;
-export const scoreToLevelMap: number[] = [
-  2000, 8000, 14000, 22000, 34000, 48000, 64000, 96000, 130000, 170000, 215000,
-  265000, 300000, 375000,
-];
+export const maxScoreMultiplier = ACTIVE_TUNING.maxScoreMultiplier;
+export const maxLetterMultiplierLength =
+  ACTIVE_TUNING.maxLetterMultiplierLength;
 
-export const maxBonusCellLength = 8;
+export const baseEmeraldValue = ACTIVE_TUNING.baseEmeraldValue;
+export const baseSaphireValue = ACTIVE_TUNING.baseSaphireValue;
 
-export const bonusCellSpawnChance: any = {
-  5: {
+export const baseBonusWordLength = ACTIVE_TUNING.baseBonusWordLength;
+export const bonusWordMultiplier = ACTIVE_TUNING.bonusWordMultiplier;
+
+export const maxLevel = ACTIVE_TUNING.maxLevel;
+
+export const scoreToLevelMap: number[] = (() => {
+  const arr: number[] = [];
+  let threshold = ACTIVE_TUNING.levelBaseScore;
+  for (let lvl = 2; lvl <= ACTIVE_TUNING.maxLevel; lvl++) {
+    arr.push(Math.round(threshold));
+    threshold *= ACTIVE_TUNING.levelGrowthRate;
+  }
+  return arr;
+})();
+
+export const maxBonusCellLength = ACTIVE_TUNING.maxBonusCellLength;
+
+export const bonusCellSpawnChance: any = (() => {
+  const out: any = {};
+  // Emerald window
+  out[ACTIVE_TUNING.emeraldSpawnAt] = {
     type: CellTypes.EMERALD,
-    chance: 0.4,
-  },
-  6: {
-    type: CellTypes.EMERALD,
-    chance: 0.8,
-  },
-  7: {
+    chance: ACTIVE_TUNING.emeraldSpawnChanceAtThreshold,
+  };
+  // Between emerald and saphire thresholds, keep emerald with rising chance
+  const mid = ACTIVE_TUNING.saphireSpawnAt - 1;
+  if (mid > ACTIVE_TUNING.emeraldSpawnAt) {
+    out[mid] = {
+      type: CellTypes.EMERALD,
+      chance: Math.min(1, ACTIVE_TUNING.emeraldSpawnChanceAtThreshold + 0.15),
+    };
+  }
+  // Saphire window
+  out[ACTIVE_TUNING.saphireSpawnAt] = {
     type: CellTypes.SAPHIRE,
-    chance: 1,
-  },
-  8: {
-    type: CellTypes.SAPHIRE,
-    chance: 1,
-  },
+    chance: ACTIVE_TUNING.saphireSpawnChanceAtThreshold,
+  };
+  if (ACTIVE_TUNING.maxBonusCellLength >= ACTIVE_TUNING.saphireSpawnAt + 1) {
+    out[ACTIVE_TUNING.saphireSpawnAt + 1] = {
+      type: CellTypes.SAPHIRE,
+      chance: Math.min(1, ACTIVE_TUNING.saphireSpawnChanceAtThreshold + 0.2),
+    };
+  }
+  return out;
+})();
+
+export const lengthMultipliers: any = (() => {
+  const out: any = {};
+  let mult = ACTIVE_TUNING.lengthMultiplierStart;
+  for (let len = 3; len <= ACTIVE_TUNING.maxLetterMultiplierLength; len++) {
+    if (len > 3) mult += ACTIVE_TUNING.lengthMultiplierGrowth;
+    out[len] = Math.min(mult, ACTIVE_TUNING.maxScoreMultiplier);
+  }
+  return out;
+})();
+
+export const fireTileChance: any = (() => {
+  const out: any = {};
+  const start = ACTIVE_TUNING.fireStartChance;
+  const end = ACTIVE_TUNING.fireMaxChance;
+  for (let lvl = 1; lvl <= ACTIVE_TUNING.maxLevel; lvl++) {
+    const t = (lvl - 1) / (ACTIVE_TUNING.maxLevel - 1);
+    // ease-in curve for more dramatic ramp late-game
+    const eased = t * t;
+    out[lvl] = parseFloat((start + (end - start) * eased).toFixed(3));
+  }
+  return out;
+})();
+
+export const levelToLetterRarityChance: any = (() => {
+  const out: any = {};
+  for (let lvl = 1; lvl <= ACTIVE_TUNING.maxLevel; lvl++) {
+    const t = (lvl - 1) / (ACTIVE_TUNING.maxLevel - 1);
+    const lerp = (a: number, b: number) => a + (b - a) * t;
+    const low = lerp(ACTIVE_TUNING.rarityLowAtL1, ACTIVE_TUNING.rarityLowAtMax);
+    const mid = lerp(ACTIVE_TUNING.rarityMidAtL1, ACTIVE_TUNING.rarityMidAtMax);
+    const high = lerp(
+      ACTIVE_TUNING.rarityHighAtL1,
+      ACTIVE_TUNING.rarityHighAtMax
+    );
+    out[lvl] = {
+      [LETTER_RARITY_LOW]: parseFloat(low.toFixed(2)),
+      [LETTER_RARITY_MID]: parseFloat(mid.toFixed(2)),
+      [LETTER_RARITY_HIGH]: parseFloat(high.toFixed(2)),
+    };
+  }
+  return out;
+})();
+
+export const getTargetVowelRatio = (level: number): number => {
+  const t = (level - 1) / (ACTIVE_TUNING.maxLevel - 1);
+  const lerp = (a: number, b: number) => a + (b - a) * t;
+  return parseFloat(
+    lerp(ACTIVE_TUNING.vowelTargetAtL1, ACTIVE_TUNING.vowelTargetAtMax).toFixed(
+      3
+    )
+  );
 };
 
-export const lengthMultipliers: any = {
-  3: 1.0,
-  4: 1.25,
-  5: 1.75,
-  6: 2.5,
-  7: 3,
-  8: 4,
-  9: 5,
-  10: 6,
-};
-
-export const fireTileChance: any = {
-  1: 0.0,
-  2: 0.05,
-  3: 0.07,
-  4: 0.09,
-  5: 0.11,
-  6: 0.12,
-  7: 0.13,
-  8: 0.14,
-  9: 0.15,
-  10: 0.17,
-  11: 0.18,
-  12: 0.19,
-  13: 0.2,
-  14: 0.21,
-  15: 0.22,
-};
-
-export const levelToLetterRarityChance: any = {
-  1: {
-    [LETTER_RARITY_LOW]: 0.7,
-    [LETTER_RARITY_MID]: 0.25,
-    [LETTER_RARITY_HIGH]: 0.05,
-  },
-  2: {
-    [LETTER_RARITY_LOW]: 0.68,
-    [LETTER_RARITY_MID]: 0.22,
-    [LETTER_RARITY_HIGH]: 0.07,
-  },
-  3: {
-    [LETTER_RARITY_LOW]: 0.65,
-    [LETTER_RARITY_MID]: 0.25,
-    [LETTER_RARITY_HIGH]: 0.1,
-  },
-  4: {
-    [LETTER_RARITY_LOW]: 0.62,
-    [LETTER_RARITY_MID]: 0.28,
-    [LETTER_RARITY_HIGH]: 0.1,
-  },
-  5: {
-    [LETTER_RARITY_LOW]: 0.6,
-    [LETTER_RARITY_MID]: 0.3,
-    [LETTER_RARITY_HIGH]: 0.1,
-  },
-  6: {
-    [LETTER_RARITY_LOW]: 0.58,
-    [LETTER_RARITY_MID]: 0.32,
-    [LETTER_RARITY_HIGH]: 0.1,
-  },
-  7: {
-    [LETTER_RARITY_LOW]: 0.56,
-    [LETTER_RARITY_MID]: 0.33,
-    [LETTER_RARITY_HIGH]: 0.11,
-  },
-  8: {
-    [LETTER_RARITY_LOW]: 0.54,
-    [LETTER_RARITY_MID]: 0.34,
-    [LETTER_RARITY_HIGH]: 0.12,
-  },
-  9: {
-    [LETTER_RARITY_LOW]: 0.52,
-    [LETTER_RARITY_MID]: 0.35,
-    [LETTER_RARITY_HIGH]: 0.13,
-  },
-  10: {
-    [LETTER_RARITY_LOW]: 0.51,
-    [LETTER_RARITY_MID]: 0.35,
-    [LETTER_RARITY_HIGH]: 0.14,
-  },
-  11: {
-    [LETTER_RARITY_LOW]: 0.5,
-    [LETTER_RARITY_MID]: 0.36,
-    [LETTER_RARITY_HIGH]: 0.14,
-  },
-  12: {
-    [LETTER_RARITY_LOW]: 0.5,
-    [LETTER_RARITY_MID]: 0.35,
-    [LETTER_RARITY_HIGH]: 0.15,
-  },
-  13: {
-    [LETTER_RARITY_LOW]: 0.48,
-    [LETTER_RARITY_MID]: 0.37,
-    [LETTER_RARITY_HIGH]: 0.15,
-  },
-  14: {
-    [LETTER_RARITY_LOW]: 0.47,
-    [LETTER_RARITY_MID]: 0.38,
-    [LETTER_RARITY_HIGH]: 0.15,
-  },
-  15: {
-    [LETTER_RARITY_LOW]: 0.45,
-    [LETTER_RARITY_MID]: 0.39,
-    [LETTER_RARITY_HIGH]: 0.16,
-  },
+// Fun level titles – can tweak per preset later if desired
+export const levelTitles: Record<number, string> = {
+  1: "Novice Bookworm",
+  2: "Letter Forager",
+  3: "Word Dabbler",
+  4: "Syllable Slinger",
+  5: "Page Turner",
+  6: "Lexicon Scout",
+  7: "Grammar Wrangler",
+  8: "Vocabulary Tactician",
+  9: "Sentence Smith",
+  10: "Linguistic Adept",
+  11: "Thesaurus Tamer",
+  12: "Semantic Scholar",
+  13: "Word Warden",
+  14: "Grand Lexicographer",
+  15: "Master Bookwyrm",
 };

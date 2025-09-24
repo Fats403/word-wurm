@@ -28,6 +28,7 @@ import {
   maxLevel,
   maxScoreMultiplier,
   scoreToLevelMap,
+  getTargetVowelRatio,
 } from "../utils/scoreData";
 import {
   generateNewConsonant,
@@ -278,28 +279,31 @@ const GameProvider = ({ children }: GameProviderProps) => {
         });
       });
 
-      const letters: string[] = [];
+      // Target-based fill: choose counts to steer toward level target vowel ratio
+      const targetVowelRatio = getTargetVowelRatio(level);
+      const currentConsonants = allLetters.filter((l) =>
+        consonants.includes(l)
+      ).length;
+      const currentVowels = allLetters.length - currentConsonants;
+      const totalAfter = allLetters.length + numLetters;
+      const desiredVowels = Math.round(totalAfter * targetVowelRatio);
+      const vowelsToGenerate = Math.max(
+        0,
+        Math.min(numLetters, desiredVowels - currentVowels)
+      );
+      const consonantsToGenerate = numLetters - vowelsToGenerate;
 
-      for (let i = 0; i < numLetters; i++) {
-        const numConsonants: number = [...allLetters, ...letters].filter((l) =>
-          consonants.includes(l)
-        ).length;
+      const newVowels: string[] = Array.from({ length: vowelsToGenerate }, () =>
+        generateNewVowel()
+      );
+      const newConsonants: string[] = Array.from(
+        { length: consonantsToGenerate },
+        () => generateNewConsonant(level)
+      );
 
-        const cRatio = numConsonants / (allLetters.length + letters.length);
-
-        // if the consonant ratio is less then the defined ratio
-        if (cRatio < gameSettings.consonantRatio) {
-          const consonant = generateNewConsonant(level);
-          letters.push(consonant);
-        } else {
-          const vowel = generateNewVowel();
-          letters.push(vowel);
-        }
-      }
-
-      return letters;
+      return shuffle([...newVowels, ...newConsonants]);
     },
-    [level, gameGrid, gameSettings.consonantRatio, selectedLetters]
+    [level, gameGrid, selectedLetters]
   );
 
   const saveGameState = useCallback(
@@ -395,42 +399,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
             }
           }
 
-          if (
-            selectedLettersString.length >= 5 &&
-            columnIndex === randomBonusTileCol &&
-            newCol.length > 0
-          ) {
-            const bonusCellData =
-              selectedLettersString.length <= maxBonusCellLength
-                ? bonusCellSpawnChance[selectedLettersString.length]
-                : bonusCellSpawnChance[maxBonusCellLength];
-
-            if (Math.random() < bonusCellData.chance) {
-              const availableCells: any = newCol.reduce(
-                (acc: any, cur: any) => {
-                  if (cur.type === CellTypes.NONE) acc.push(cur);
-                  return acc;
-                },
-                []
-              );
-
-              if (availableCells.length > 0) {
-                const randomCellIndex = Math.round(
-                  randomNumber(0, availableCells.length - 1)
-                );
-
-                const randomCell = availableCells[randomCellIndex];
-                const indxOfRandomCellInNewCol = newCol.findIndex(
-                  (c) => c.x === randomCell.x && c.y === randomCell.y
-                );
-
-                newCol[indxOfRandomCellInNewCol] = {
-                  ...newCol[indxOfRandomCellInNewCol],
-                  type: bonusCellData.type,
-                };
-              }
-            }
-          }
+          // Note: bonus tile spawning moved to after all columns are processed
 
           if (newCol.length === col.length) {
             newGrid[columnIndex] = newCol.reverse();
@@ -481,6 +450,51 @@ const GameProvider = ({ children }: GameProviderProps) => {
           newGrid[columnIndex] = _col;
         });
 
+        // After constructing the entire newGrid, spawn a bonus tile
+        // Guarantee: for word length >= 7, always spawn a SAPHIRE tile somewhere
+        // For length 5-6, use EMERALD with chance from bonusCellSpawnChance
+        const wordLen = selectedLettersString.length;
+        let spawnType: number | null = null;
+        let spawnChance = 0;
+        if (wordLen >= 7) {
+          spawnType = CellTypes.SAPHIRE;
+          spawnChance = 1;
+        } else if (wordLen >= 5) {
+          const cfg =
+            wordLen <= maxBonusCellLength
+              ? bonusCellSpawnChance[wordLen]
+              : bonusCellSpawnChance[maxBonusCellLength];
+          if (cfg) {
+            spawnType = cfg.type;
+            spawnChance = cfg.chance;
+          }
+        }
+
+        if (spawnType !== null && Math.random() <= spawnChance) {
+          const candidates: GameCellData[] = [];
+          newGrid.forEach((c) =>
+            c.forEach((cell) => {
+              if (cell.type === CellTypes.NONE) candidates.push(cell);
+            })
+          );
+          if (candidates.length > 0) {
+            const choiceIndex = Math.round(
+              randomNumber(0, candidates.length - 1)
+            );
+            const choice = candidates[choiceIndex];
+            const colIndex = choice.x;
+            const rowIndex = newGrid[colIndex].findIndex(
+              (cc) => cc.x === choice.x && cc.y === choice.y
+            );
+            if (rowIndex !== -1) {
+              newGrid[colIndex][rowIndex] = {
+                ...newGrid[colIndex][rowIndex],
+                type: spawnType,
+              };
+            }
+          }
+        }
+
         if (!gameOver) {
           // save the game state if its not game over
           saveGameState(newGrid, newStateValues);
@@ -521,11 +535,36 @@ const GameProvider = ({ children }: GameProviderProps) => {
       )
     );
 
-    const { numCellsX, numCellsY, consonantRatio } = gameSettings;
+    const { numCellsX, numCellsY } = gameSettings;
     const numCells: number = numCellsX * numCellsY;
 
-    const numConsonants: number = Math.floor(numCells * consonantRatio);
-    const numVowels: number = numCells - numConsonants;
+    // Measure current vowel share to nudge towards target
+    let currentVowelCount = 0;
+    let currentLetterCount = 0;
+    gameGrid.forEach((col) => {
+      col.forEach((cell) => {
+        if (cell.type === CellTypes.NONE) {
+          currentLetterCount++;
+          const val = cell.value.toUpperCase();
+          if (["A", "E", "I", "O", "U"].includes(val)) currentVowelCount++;
+        }
+      });
+    });
+    const currentVowelRatio =
+      currentLetterCount > 0 ? currentVowelCount / currentLetterCount : 0.33;
+    const targetVowelRatio = getTargetVowelRatio(level);
+    const clamp = (v: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, v));
+    // Gentle blend toward target without overshoot
+    const alpha = 0.35; // correction strength
+    const generatedVowelRatio = clamp(
+      currentVowelRatio + alpha * (targetVowelRatio - currentVowelRatio),
+      0.24,
+      0.38
+    );
+
+    const numVowels: number = Math.round(numCells * generatedVowelRatio);
+    const numConsonants: number = numCells - numVowels;
 
     const randomConsonants: string[] = Array.from(
       { length: numConsonants },

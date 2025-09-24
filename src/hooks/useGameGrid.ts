@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { CellTypes, GameCellData, GameSettingsType } from "../types";
 import { generateNewConsonant, generateNewVowel } from "../utils/lettersData";
+import { getTargetVowelRatio } from "../utils/scoreData";
 import shuffle from "../utils/shuffle";
 
 export const useGameGrid = (gameSettings: GameSettingsType) => {
@@ -10,8 +11,9 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
   const createNewGameGrid = useCallback(
     (level = 1): GameCellData[][] => {
       const numCells: number = numCellsX * numCellsY;
-      const numConsonants: number = Math.floor(numCells * consonantRatio);
-      const numVowels: number = numCells - numConsonants;
+      const targetVowelRatio = getTargetVowelRatio(level);
+      const numVowels: number = Math.round(numCells * targetVowelRatio);
+      const numConsonants: number = numCells - numVowels;
 
       const randomConsonants: string[] = Array.from(
         { length: numConsonants },
@@ -35,7 +37,7 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
         }))
       );
     },
-    [consonantRatio, numCellsX, numCellsY]
+    [numCellsX, numCellsY]
   );
 
   const loadGameGrid = useCallback(
