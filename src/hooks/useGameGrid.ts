@@ -45,6 +45,10 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
       return Array.from({ length: numCellsX }, (_, x) =>
         Array.from({ length: numCellsY }, (_, y) => {
           const cell = { ...savedGrid[`${x}-${y}`] } as any;
+          // Reset transient selection state on load to avoid stale UI state
+          cell.selected = false;
+          // Ensure prevY is cleared so arrows/animations don't miscompute
+          if (typeof cell.prevY !== "undefined") delete cell.prevY;
           if (!cell.id) {
             cell.id = `${x}-${y}-${Date.now()}-${Math.random()}`;
           }
