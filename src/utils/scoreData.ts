@@ -114,8 +114,8 @@ export const presets: Record<string, TuningPreset> = {
 
     baseEmeraldValue: 0.5,
     baseSaphireValue: 1.75,
-    vowelTargetAtL1: 0.34,
-    vowelTargetAtMax: 0.3,
+    vowelTargetAtL1: 0.32,
+    vowelTargetAtMax: 0.29,
   },
   hard: {
     maxLevel: 15,

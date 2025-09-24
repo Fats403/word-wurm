@@ -289,7 +289,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
       ).length;
       const currentVowels = allLetters.length - currentConsonants;
       const totalAfter = allLetters.length + numLetters;
-      const desiredVowels = Math.round(totalAfter * targetVowelRatio);
+      const desiredVowels = Math.floor(totalAfter * targetVowelRatio);
       const vowelsToGenerate = Math.max(
         0,
         Math.min(numLetters, desiredVowels - currentVowels)

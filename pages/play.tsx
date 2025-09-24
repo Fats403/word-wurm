@@ -47,7 +47,10 @@ const Game: NextPage = () => {
 
   if (isLoadingAuth || isLoadingSavedGame) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-300">
+      <div
+        className="flex flex-col items-center justify-center bg-gray-300"
+        style={{ minHeight: "100dvh" }}
+      >
         <Loader />
       </div>
     );
