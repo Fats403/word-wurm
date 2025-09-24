@@ -12,6 +12,7 @@ const GameGrid = (): JSX.Element => {
     submitWord,
     shuffleGameBoard,
     isGameOver,
+    isAnimating,
     selectedLetters,
     wordScore,
     totalScore,
@@ -22,9 +23,9 @@ const GameGrid = (): JSX.Element => {
   const gridWidth: number = numCellsX * cellSize;
   const gridHeight: number = numCellsY * cellSize + cellSize / 2 - numCellsY;
 
-  const submitDisabled: boolean = !isValidWord || isGameOver;
+  const submitDisabled: boolean = !isValidWord || isGameOver || isAnimating;
   const shuffleDisabled: boolean =
-    Boolean(selectedLetters.length) || isGameOver;
+    Boolean(selectedLetters.length) || isGameOver || isAnimating;
 
   return (
     <div className="p-4 bg-white shadow-lg border bg-black bg-opacity-20 border-2 border-white rounded-xl">
@@ -66,7 +67,7 @@ const GameGrid = (): JSX.Element => {
               {row.map((data, xIndex) => {
                 return (
                   <LetterCell
-                    key={`${xIndex}-${yIndex}`}
+                    key={data.id || `${xIndex}-${yIndex}`}
                     data={data}
                     size={cellSize}
                   />

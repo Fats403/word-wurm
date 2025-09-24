@@ -26,6 +26,7 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
 
       return Array.from({ length: numCellsX }, (_, x) =>
         Array.from({ length: numCellsY }, (_, y) => ({
+          id: `${x}-${y}-${Date.now()}-${Math.random()}`,
           value: letters[y * numCellsY + x],
           selected: false,
           type: CellTypes.NONE,
@@ -40,9 +41,13 @@ export const useGameGrid = (gameSettings: GameSettingsType) => {
   const loadGameGrid = useCallback(
     (savedGrid: any): GameCellData[][] => {
       return Array.from({ length: numCellsX }, (_, x) =>
-        Array.from({ length: numCellsY }, (_, y) => ({
-          ...savedGrid[`${x}-${y}`],
-        }))
+        Array.from({ length: numCellsY }, (_, y) => {
+          const cell = { ...savedGrid[`${x}-${y}`] } as any;
+          if (!cell.id) {
+            cell.id = `${x}-${y}-${Date.now()}-${Math.random()}`;
+          }
+          return cell;
+        })
       );
     },
     [numCellsX, numCellsY]

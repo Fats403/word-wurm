@@ -16,11 +16,14 @@ export enum HighscoreSortingTypes {
 }
 
 export interface GameCellData {
+  id?: string;
   value: string;
   selected: boolean;
   type: number;
   x: number;
   y: number;
+  prevX?: number;
+  prevY?: number;
 }
 
 export interface LetterData {
@@ -72,6 +75,7 @@ export type GameContextType = {
   selectedLetters: GameCellData[];
   gameSettings: GameSettingsType;
   isGameOver: boolean;
+  isAnimating: boolean;
   selectLetter: (data: GameCellData) => void;
   shuffleGameBoard: () => void;
   resetGame: () => void;

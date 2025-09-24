@@ -39,6 +39,7 @@ import { firestore } from "../services/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import randomNumber from "../utils/randomNumber";
 import { FirebaseContext, FirebaseContextState } from "./FirebaseContext";
+import { LETTER_FALL_DURATION_MS } from "../utils/animation";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -63,6 +64,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [bonusWord, setBonusWord] = useState<string>("");
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  // removed burnEffects system; using visual lookahead in LetterCell instead
 
   const selectedLettersString = useMemo(
     () => selectedLetters.map((l) => l.value).join(""),
@@ -141,7 +144,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const selectLetter = useCallback(
     (data: GameCellData): void => {
-      if (isGameOver) return;
+      if (isGameOver || isAnimating) return;
 
       if (!data.selected) {
         const selectionIsNeighbour = lastSelectedNeighbours?.some(
@@ -328,6 +331,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
   const updateGameGridState = useCallback(
     (newStateValues?: any) => {
+      setIsAnimating(true);
+      // no-op
       let gameOver = false;
 
       if (
@@ -382,7 +387,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
                     (l) => l.x === cellAbove.x && l.y === cellAbove.y
                   ))
               ) {
+                const previousY = cell.y;
                 cell.y = yIndex--;
+                cell.prevY = previousY;
                 newCol.push(cell);
               }
             }
@@ -457,11 +464,13 @@ const GameProvider = ({ children }: GameProviderProps) => {
             }
 
             const newLetter: GameCellData = {
+              id: `${columnIndex}-${i}-${Date.now()}-${Math.random()}`,
               value: newLetters[i - 1],
               selected: false,
               type: newLetterType,
               y: numNewLetters - i,
               x: columnIndex,
+              prevY: -(numNewLetters + 1),
             };
 
             newLettersGameCells.push(newLetter);
@@ -486,6 +495,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
       }
 
       setSelectedLetters([]);
+      setTimeout(() => setIsAnimating(false), LETTER_FALL_DURATION_MS);
     },
     [
       clearGameState,
@@ -619,6 +629,8 @@ const GameProvider = ({ children }: GameProviderProps) => {
         level,
         bonusWord,
         isGameOver,
+        isAnimating,
+
         totalScore,
         longestWord,
         wordScore,
