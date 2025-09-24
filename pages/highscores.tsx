@@ -50,6 +50,9 @@ const Highscores: NextPage = () => {
             <option value={HighscoreSortingTypes.LONGEST_WORD}>
               Longest Word
             </option>
+            <option value={HighscoreSortingTypes.WORD_SCORE}>
+              Best Word Score
+            </option>
           </select>
         </div>
 

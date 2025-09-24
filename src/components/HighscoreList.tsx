@@ -13,8 +13,8 @@ const HighscoreList = ({ highscores, property }: any): JSX.Element => {
       {highscores?.map((data: any, index: number) => {
         if (index >= 10) return;
 
-        const nestedProperty = data[properties[0]][properties[1]];
-        const property = data[properties[0]];
+        const nestedProperty = data[properties[0]]?.[properties[1]];
+        const propertyValue = data[properties[0]];
 
         return (
           <li key={index} className="flex items-center my-2 space-x-2 ">
@@ -35,11 +35,18 @@ const HighscoreList = ({ highscores, property }: any): JSX.Element => {
               <span className="ml-2 text-md font-bold text-gray-900">
                 {data.displayName}
               </span>
-              <span className="ml-2 text-sm font-medium text-gray-500 tracking-wide">
-                {properties.length === 2
-                  ? nestedProperty.toLocaleString("en-US")
-                  : property.toLocaleString("en-US")}
-              </span>
+              {property === "bestWordScore" ? (
+                <span className="ml-2 text-sm font-medium text-gray-500 tracking-wide">
+                  {data.bestWord ? `${data.bestWord} — ` : ""}
+                  {Number(data.bestWordScore || 0).toLocaleString("en-US")}
+                </span>
+              ) : (
+                <span className="ml-2 text-sm font-medium text-gray-500 tracking-wide">
+                  {properties.length === 2
+                    ? nestedProperty?.toLocaleString("en-US")
+                    : propertyValue?.toLocaleString("en-US")}
+                </span>
+              )}
             </div>
           </li>
         );

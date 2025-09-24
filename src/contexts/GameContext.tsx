@@ -8,6 +8,7 @@ import React, {
 import { useGameGrid } from "../hooks/useGameGrid";
 import wordLib from "word-lib";
 import {
+  BestWordScoreType,
   CellTypes,
   GameCellData,
   GameContextType,
@@ -41,6 +42,7 @@ import { doc, setDoc } from "firebase/firestore";
 import randomNumber from "../utils/randomNumber";
 import { FirebaseContext, FirebaseContextState } from "./FirebaseContext";
 import { LETTER_FALL_DURATION_MS } from "../utils/animation";
+import vowels from "../utils/vowels";
 
 export const GameContext = React.createContext<GameContextType | null>(null);
 
@@ -59,6 +61,16 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const [selectedLetters, setSelectedLetters] = useState<GameCellData[]>([]);
   const [totalScore, setTotalScore] = useState<number>(0);
   const [longestWord, setLongestWord] = useState<string>("");
+  const [perLevelLongestWord, setPerLevelLongestWord] = useState<
+    Record<number, string>
+  >({});
+  const [perLevelBestWordScore, setPerLevelBestWordScore] = useState<
+    Record<number, BestWordScoreType>
+  >({});
+  const [bestWordScore, setBestWordScore] = useState<BestWordScoreType>({
+    word: "",
+    score: 0,
+  });
 
   const [bonusWordMaxLength, setBonusWordMaxLength] =
     useState<number>(baseBonusWordLength);
@@ -85,6 +97,15 @@ const GameProvider = ({ children }: GameProviderProps) => {
   const initializeGameState = useCallback(() => {
     savedGameState?.longestWord && setLongestWord(savedGameState.longestWord);
     savedGameState?.totalScore && setTotalScore(savedGameState.totalScore);
+    if (savedGameState?.bestWordScore) {
+      setBestWordScore(savedGameState.bestWordScore);
+    }
+    if (savedGameState?.perLevelLongestWord) {
+      setPerLevelLongestWord(savedGameState.perLevelLongestWord);
+    }
+    if (savedGameState?.perLevelBestWordScore) {
+      setPerLevelBestWordScore(savedGameState.perLevelBestWordScore);
+    }
 
     setBonusWord(
       savedGameState
@@ -356,10 +377,6 @@ const GameProvider = ({ children }: GameProviderProps) => {
         setIsGameOver(true);
       }
 
-      const randomBonusTileCol = Math.round(
-        randomNumber(0, gameSettings.numCellsX - 1)
-      );
-
       setGameGrid((grid) => {
         const newGrid: GameCellData[][] = [];
 
@@ -423,10 +440,10 @@ const GameProvider = ({ children }: GameProviderProps) => {
               // base burning tile chance for 3 letter words
               const baseChance = fireTileChance[level];
 
-              // NOTE: deduct 5 - 10 percent chance off the base chance for four letter words
+              // NOTE: deduct 1 - 4 percent chance off the base chance for four letter words
               const bonusChance =
                 selectedLettersString.length === 4
-                  ? randomNumber(0.04, 0.08)
+                  ? randomNumber(0.01, 0.04)
                   : 0;
 
               const random = Math.random();
@@ -549,7 +566,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
         if (cell.type === CellTypes.NONE) {
           currentLetterCount++;
           const val = cell.value.toUpperCase();
-          if (["A", "E", "I", "O", "U"].includes(val)) currentVowelCount++;
+          if (vowels.includes(val)) currentVowelCount++;
         }
       });
     });
@@ -607,15 +624,21 @@ const GameProvider = ({ children }: GameProviderProps) => {
       totalScore,
       bonusWord,
       longestWord,
+      bestWordScore,
+      perLevelLongestWord,
+      perLevelBestWordScore,
     });
   }, [
     bonusWord,
     gameSettings,
     level,
     longestWord,
+    perLevelBestWordScore,
+    perLevelLongestWord,
     setGameGrid,
     totalScore,
     updateGameGridState,
+    bestWordScore,
   ]);
 
   const resetGame = useCallback((): void => {
@@ -624,6 +647,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
     setTotalScore(0);
     setBonusWordMaxLength(baseBonusWordLength);
     setBonusWord(wordLib.random(baseBonusWordLength));
+    setPerLevelLongestWord({});
+    setPerLevelBestWordScore({});
+    setBestWordScore({ word: "", score: 0 });
 
     setGameGrid(createNewGameGrid());
     setIsGameOver(false);
@@ -635,7 +661,6 @@ const GameProvider = ({ children }: GameProviderProps) => {
 
     let newBonusWord = bonusWord;
     let newLongestWord = longestWord;
-
     if (selectedLettersString.length > longestWord.length) {
       newLongestWord = selectedLettersString;
     }
@@ -649,11 +674,43 @@ const GameProvider = ({ children }: GameProviderProps) => {
     setTotalScore(newScore);
     setLongestWord(newLongestWord);
     setBonusWord(newBonusWord);
+    // Update best word stats (global and per-level)
+    const currentLevel = level;
+    const updatedPerLevelLongestWord: Record<number, string> = {
+      ...perLevelLongestWord,
+    };
+    const prevLevelLongest = updatedPerLevelLongestWord[currentLevel] || "";
+    if (selectedLettersString.length > prevLevelLongest.length) {
+      updatedPerLevelLongestWord[currentLevel] = selectedLettersString;
+    }
+
+    const updatedPerLevelBestWordScore: Record<number, BestWordScoreType> = {
+      ...perLevelBestWordScore,
+    };
+    const prevBestForLevel = updatedPerLevelBestWordScore[currentLevel];
+    if (!prevBestForLevel || _score > prevBestForLevel.score) {
+      updatedPerLevelBestWordScore[currentLevel] = {
+        word: selectedLettersString,
+        score: _score,
+      };
+    }
+
+    const newBestWordScore: BestWordScoreType =
+      _score > bestWordScore.score
+        ? { word: selectedLettersString, score: _score }
+        : bestWordScore;
+
+    setPerLevelLongestWord(updatedPerLevelLongestWord);
+    setPerLevelBestWordScore(updatedPerLevelBestWordScore);
+    setBestWordScore(newBestWordScore);
 
     updateGameGridState({
       totalScore: newScore,
       longestWord: newLongestWord,
       bonusWord: newBonusWord,
+      bestWordScore: newBestWordScore,
+      perLevelLongestWord: updatedPerLevelLongestWord,
+      perLevelBestWordScore: updatedPerLevelBestWordScore,
     });
   }, [
     wordScore,
@@ -663,6 +720,9 @@ const GameProvider = ({ children }: GameProviderProps) => {
     bonusWord,
     updateGameGridState,
     level,
+    bestWordScore,
+    perLevelBestWordScore,
+    perLevelLongestWord,
   ]);
 
   return (
@@ -672,9 +732,7 @@ const GameProvider = ({ children }: GameProviderProps) => {
         bonusWord,
         isGameOver,
         isAnimating,
-
         totalScore,
-        longestWord,
         wordScore,
         isValidWord,
         selectedLetters,
@@ -684,6 +742,10 @@ const GameProvider = ({ children }: GameProviderProps) => {
         submitWord,
         selectLetter,
         shuffleGameBoard,
+        longestWord,
+        bestWordScore,
+        perLevelLongestWord,
+        perLevelBestWordScore,
       }}
     >
       {children}

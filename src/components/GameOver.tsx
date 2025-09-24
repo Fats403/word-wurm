@@ -33,7 +33,7 @@ const GameOver = (): JSX.Element => {
 
   const { showToast } = useContext(ToastContext) as ToastContextState;
   const { user } = useContext(FirebaseContext) as FirebaseContextState;
-  const { totalScore, resetGame, longestWord } = useContext(
+  const { totalScore, resetGame, longestWord, bestWordScore } = useContext(
     GameContext
   ) as GameContextType;
 
@@ -58,12 +58,21 @@ const GameOver = (): JSX.Element => {
       return false;
     }
 
+    if (
+      currentHighscoreData?.bestWordScore !== undefined &&
+      bestWordScore?.score &&
+      currentHighscoreData.bestWordScore <= bestWordScore.score
+    ) {
+      return false;
+    }
+
     return true;
   }, [
     currentHighscoreData,
     longestWord.length,
     sentHighscore,
     totalScore,
+    bestWordScore,
     user,
   ]);
 
@@ -93,6 +102,18 @@ const GameOver = (): JSX.Element => {
         currentHighscoreData.totalScore < totalScore)
     ) {
       highscoreData.totalScore = totalScore;
+    }
+
+    if (
+      !currentHighscoreData ||
+      currentHighscoreData.bestWordScore === undefined ||
+      (bestWordScore?.score &&
+        currentHighscoreData.bestWordScore < bestWordScore.score)
+    ) {
+      if (bestWordScore?.score) {
+        highscoreData.bestWordScore = bestWordScore.score;
+        highscoreData.bestWord = bestWordScore.word;
+      }
     }
 
     setDoc(doc(firestore, "highscores", user.uid), highscoreData, {
