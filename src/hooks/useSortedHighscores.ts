@@ -7,17 +7,21 @@ export const useSortedHighscores = (highscores: any) => {
   const [sortedByBestWordScore, setSortedByBestWordScore] = useState<any[]>([]);
 
   useEffect(() => {
-    const scoreSort = [...highscores];
-    const longestWordSort = [...highscores];
+    const scoreSort = highscores.filter(
+      (h: any) => typeof h.totalScore === "number"
+    );
+    const longestWordSort = highscores.filter(
+      (h: any) => typeof h.longestWord === "string" && h.longestWord.length > 0
+    );
     const bestWordScoreSort = highscores.filter(
       (h: any) => typeof h.bestWordScore === "number" && h.bestWordScore > 0
     );
 
-    scoreSort.sort((a, b) => {
+    scoreSort.sort((a: any, b: any) => {
       return b.totalScore - a.totalScore;
     });
 
-    longestWordSort.sort((a, b) => {
+    longestWordSort.sort((a: any, b: any) => {
       return b.longestWord.length - a.longestWord.length;
     });
 
